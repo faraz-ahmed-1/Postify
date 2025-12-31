@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Login</title>
+    <link rel="shortcut icon" href="FAVICON.png" type="image/x-icon">
+
+    <style>
+                :root {
+            --primary: #4285f4;
+            --primary-dark: #3367d6;
+            --secondary: #34a853;
+            --error: #ea4335;
+            --text: #202124;
+            --text-light: #5f6368;
+            --border: #dadce0;
+            --bg: #f8f9fa;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: radial-gradient(circle at top right, rgba(66, 133, 244, 0.1) 0%, transparent 50%);
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            margin: 20px;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .logo h1 {
+            color: var(--primary);
+            font-size: 28px;
+            font-weight: 500;
+            letter-spacing: -0.5px;
+        }
+        
+        .logo p {
+            color: var(--text-light);
+            font-size: 14px;
+            margin-top: 8px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 40px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+        
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+        }
+        
+        .remember-me input {
+            margin-right: 8px;
+        }
+        
+        .forgot-password a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 24px 0;
+            color: var(--text-light);
+            font-size: 14px;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .divider::before {
+            margin-right: 16px;
+        }
+        
+        .divider::after {
+            margin-left: 16px;
+        }
+        
+        .social-login {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .social-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .social-btn:hover {
+            background-color: var(--bg);
+            transform: translateY(-2px);
+        }
+        
+        .signup-link {
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-light);
+        }
+        
+        .signup-link a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .error-message {
+            color: var(--error);
+            font-size: 13px;
+            margin-top: 4px;
+            display: none;
+        }
+        
+        input.error {
+            border-color: var(--error);
+        }
+        
+        @media (max-width: 768px) {
+    body {
+        padding: 10px;
+        align-items: flex-start; /* Avoid too much vertical stretching */
+    }
+
+    .login-container {
+        padding: 25px;
+        margin: 0 auto;
+        width: 100%;
+        max-width: 100%;
+        border-radius: 6px;
+        box-shadow: none; /* reduce shadow for mobile simplicity */
+    }
+
+    .logo h1 {
+        font-size: 22px;
+    }
+
+    .logo p {
+        font-size: 12px;
+    }
+
+    .input-group label {
+        font-size: 13px;
+    }
+
+    .input-group input {
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    .password-toggle {
+        font-size: 12px;
+        top: 35px;
+        right: 10px;
+    }
+
+    button {
+        padding: 12px;
+        font-size: 15px;
+    }
+
+    .remember-forgot {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .signup-link {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-container {
+        padding: 20px;
+    }
+
+    .logo h1 {
+        font-size: 20px;
+    }
+
+    button, input {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .divider {
+        font-size: 12px;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>Welcome Back</h1>
+            <p>Please enter your details to sign in</p>
+        </div>
+        
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="Enter your email" required>
+                <div class="error-message" id="email-error">Invalid Email</div>
+            </div>
+            
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password" required>
+                <span class="password-toggle" id="togglePassword">Show</span>
+                <div class="error-message" id="password-error">Invalid Password</div>
+            </div>
+            
+            <div class="remember-forgot">
+                <div class="remember-me">
+                    <input type="checkbox" id="remember">
+                    <label for="remember">Remember me</label>
+                </div>
+                <div class="forgot-password">
+                    <a href="#">Forgot password?</a>
+                </div>
+            </div>
+            
+            <button type="submit">Log In</button>
+        </form>
+        
+        <div class="divider">or</div>
+        
+        <div class="signup-link">
+            Don't have an account? <a href="signup.html">Sign up</a>
+        </div>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        const emailInput = document.getElementById('email');
+        const emailError = document.getElementById('email-error');
+        const passwordError = document.getElementById('password-error');
+        
+        // Toggle password visibility
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            togglePassword.textContent = type === 'password' ? 'Show' : 'Hide';
+        });
+        
+        // Form validation
+// Form validation
+loginForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const email = emailInput.value;
+  const password = passwordInput.value;
+
+  try {
+    const res = await fetch("http://localhost:3000/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.user) {
+      // Show error messages based on response
+      if (data.message === "User not found") {
+        emailInput.classList.add('error');
+        emailError.style.display = 'block';
+      } else {
+        emailInput.classList.remove('error');
+        emailError.style.display = 'none';
+      }
+
+      if (data.message === "Invalid password") {
+        passwordInput.classList.add('error');
+        passwordError.style.display = 'block';
+      } else {
+        passwordInput.classList.remove('error');
+        passwordError.style.display = 'none';
+      }
+
+      return; // stop here, don’t redirect
+    }
+
+    // Success 🎉
+    emailInput.classList.remove('error');
+    passwordInput.classList.remove('error');
+    emailError.style.display = 'none';
+    passwordError.style.display = 'none';
+
+    // Save user in localStorage
+    localStorage.setItem("user", JSON.stringify(data.user));
+
+    // Redirect to home page
+    window.location.href = `home.html?username=${data.user.username}`;
+  } catch (err) {
+    console.error("Login error:", err);
+    alert("Something went wrong. Please try again later.");
+  }
+});
+
+
+    </script>
+</body>
+</html>

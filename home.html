@@ -1,0 +1,2869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Postify</title>
+  <link rel="shortcut icon" href="FAVICON.png" type="image/x-icon">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #fafafa;
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Layout Grid */
+    .sidebar-left {
+      width: 18%;
+      background: white;
+      border-right: 1px solid #ddd;
+      padding: 20px;
+    }
+    .sidebar-left h2 {
+      margin: 50px;
+    }
+    .sidebar-left a {
+      display: block;
+      margin: 15px 0;
+      color: black;
+      text-decoration: none;
+      font-size: 16px;
+    }
+    .sidebar-left a:hover {
+      font-weight: bold;
+    }
+
+    .main-feed {
+      width: 55%;
+      margin: 0 auto;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .post {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    .post-header {
+      padding: 10px;
+      font-weight: bold;
+      border-bottom: 1px solid #eee;
+    }
+    .post img {
+      width: 100%;
+      display: block;
+    }
+    .caption {
+      padding: 10px;
+      font-size: 14px;
+    }
+    .time {
+      padding: 10px;
+      font-size: 12px;
+      color: gray;
+    }
+
+    .sidebar-right {
+      width: 25%;
+      padding: 20px;
+    }
+    .suggestions {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 15px;
+    }
+    .suggestions h3 {
+      margin-top: 0;
+    }
+    .suggestion {
+      display: flex;
+      align-items: center;
+      margin: 10px 0;
+    }
+    .suggestion img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+    /* Search Popup */
+.search-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 400px;
+  height: 100vh;
+  background: #fff;
+  border-right: 1px solid #ddd;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+  z-index: 9999;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+.search-popup.open { transform: translateX(0); }
+
+.search-box {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+.search-box input {
+  flex: 1;
+  padding: 10px;
+  font-size: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+.close-btn {
+  border: none;
+  background: none;
+  font-size: 20px;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.search-results {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
+.user-item {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  gap: 12px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.user-item:hover {
+  background: #f5f5f5;
+}
+.user-item img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.user-item .username {
+  font-weight: 600;
+}
+.user-item .fullname {
+  font-size: 13px;
+  color: #777;
+}
+.search-results {
+  margin-top: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.search-item {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.search-item:hover {
+  background: #f0f0f0;
+}
+
+.search-item img {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+.suggestion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 12px 0;
+}
+
+.suggestion .user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.suggestion img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.suggestion .username {
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.suggestion button {
+  background: #0095f6;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.suggestion button:hover {
+  background: #007acc;
+}
+
+.suggestion button:disabled {
+  background: #ccc;
+  cursor: default;
+}
+
+
+.suggestion button:disabled {
+  background: #ccc;
+  cursor: default;
+}
+
+.post {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+}
+
+.post-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.post-header-left img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.post-header-left .username {
+  font-weight: 600;
+  cursor: pointer;
+}
+.post-header-left .time {font-size: 12px;color: gray;}
+.post img, .post video {width: 100%;display: block;max-height: 500px;object-fit: cover;}
+.post-actions {display: flex;gap: 15px;padding: 10px;font-size: 20px;cursor: pointer;}
+.likes {padding: 0 10px;font-weight: 600;}
+.caption {padding: 0 10px;}
+.caption .username {font-weight: 600;margin-right: 6px;}
+.comment-box {display: flex;align-items: center;border-top: 1px solid #eee;padding: 8px 10px;}
+.comment-box input {flex: 1;border: none;outline: none;padding: 6px;font-size: 14px;}
+.comment-box button {border: none;background: none;color: #0095f6;font-weight: bold;cursor: pointer;}
+.likeBtn {font-size: 30px;border: none;background: none;cursor: pointer;color: #444; transition: color 0.2s ease-in-out;}
+.likeBtn.liked {color: red;}
+#feedContainer {max-width: 600px;margin: 20px auto;padding: 0 10px;display: flex;flex-direction: column;gap: 20px;}
+.post {background: #fff;border: 1px solid #ddd;border-radius: 12px;overflow: hidden;box-shadow: 0 2px 6px rgba(0,0,0,0.05);font-family: 'Poppins', sans-serif;}
+.post-header {display: flex;align-items: center;justify-content: space-between;padding: 12px;}
+.post-header img.avatar-small {width: 40px;height: 40px;border-radius: 50%;object-fit: cover;margin-right: 10px;}
+.post-header span {font-size: 14px;color: #333;}
+.post-header .time {font-size: 12px;color: #999;margin-left: auto;}
+.post-media img,.post-media video {width: 100%;max-height: 400px;object-fit: cover;display: block;}
+.post-actions {display: flex;align-items: center;gap: 15px;padding: 10px 12px;}
+.likeBtn{font-size: 30px;border: none;background: none;cursor: pointer;transition: transform 0.2s;}
+.commentBtn {font-size: 20px;border: none;background: none;cursor: pointer;transition: transform 0.2s;}
+.likeBtn:hover, .commentBtn:hover {transform: scale(1.2);}
+.likeBtn.liked {color: red;}
+.likes {font-size: 16px;font-weight: bold;margin: 0 12px 6px;}
+.caption {font-size: 14px;padding: 0 12px 12px;color: #333;}
+.caption b {margin-right: 5px;}
+.comment-box {display: flex;align-items: center;border-top: 1px solid #eee;padding: 8px 10px;background: #fafafa;}
+.comment-box input {flex: 1;border: none;outline: none;padding: 6px;font-size: 14px;border-radius: 6px;background: white;}
+.comment-box button {border: none;background: none;color: #0095f6;font-weight: bold;cursor: pointer;margin-left: 10px;}
+.comment-box button:hover {color: #007acc;}
+.modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:9999; align-items:center; justify-content:center; padding:20px; }
+.modal.open { display:flex; }
+.modal-card { width:95%; max-width:1100px; height:80vh; display:flex; background:#fff; border-radius:8px; overflow:hidden;box-sizing: border-box;}
+.modal-left {flex:1; display:flex; align-items:center; justify-content:center; background:#000;}
+.modal-left img, .modal-left video {max-width:100%; max-height:100%; object-fit:contain;}
+.post-header {display:flex; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid #f0f0f0;}
+.post-header img {width:40px; height:40px; border-radius:50%; object-fit:cover;}
+.post-body {flex:1; overflow:auto; padding:12px 16px;}
+.caption {margin:8px 0; color:#222;}
+.likes-row {padding:0px 16px; border-top:1px solid #f0f0f0;}
+.actions {display:flex; gap:12px; padding:0px 10px; align-items:center; border-top:1px solid #f7f7f7;}
+.comments {display:flex; flex-direction:column;}
+.comment {display:flex; gap:8px; align-items:flex-start;}
+.comment img {width:34px; height:34px; border-radius:50%; object-fit:cover;}
+.comment-text {background:#f2f2f2; padding:8px 10px; border-radius:10px;}
+.add-comment {display:flex; gap:8px; padding:10px 16px; border-top:1px solid #eee;}
+.add-comment input {flex:1; padding:10px; border-radius:20px; border:1px solid #ddd;}
+.add-comment button {padding:10px 14px; border-radius:20px; background:#111; color:#fff; border:none; cursor:pointer;}
+.likeBtn {font-size:40px; cursor:pointer; border:none; background:none; transition:color 0.15s;}
+.likeBtn.liked {font-size: 40px; color:#e33;}
+.comment {display: flex;align-items: flex-start;gap: 10px;margin: 12px 0;}
+.comment-pic {width: 36px;height: 36px;border-radius: 50%;object-fit: cover;}
+.comment-content {display: flex;flex-direction: column;max-width: calc(100% - 50px);}
+.comment-username {font-weight: 600;margin-bottom: 4px;}
+.comment-text {background: #f1f1f1;padding: 6px 10px;border-radius: 10px;line-height: 1.4;margin-bottom: 4px;word-wrap: break-word;}
+.comment-time {font-size: 12px;color: #777;}
+.video-wrapper {position: relative;display: inline-block;width: 100%;}
+.video-wrapper video {width: 100%;height: auto;}
+.mute-btn {position: absolute;bottom: 12px;right: 12px;background: rgba(0,0,0,0.7); color: white;border: none;padding: 6px;border-radius: 50%;cursor: pointer;font-size: 14px;box-shadow: 0 2px 6px rgba(0,0,0,0.2);transition: transform 0.2s ease;}
+.mute-btn:hover {transform: scale(1.1);background: rgba(0,0,0,0.85);}
+.mute-btn:active {transform: scale(0.9);}
+.nav-link {display: flex;align-items: center;gap: 8px;text-decoration: none;color: black;font-size: 16px;padding: 6px 0px;}
+.nav-link svg {width: 22px;height: 22px;stroke: black;fill: none;stroke-width: 2;vertical-align: middle;position: relative;top: 1px;margin: 10px 30px;}
+.nav-link img {width: 40px;height: 40px;border-radius: 50%;object-fit: cover;vertical-align: middle;position: relative;top: 1px;margin: auto 20px}
+.nav-link:hover {background: #f5f5f5;border-radius: 8px; cursor: pointer;}
+
+#post-modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.75);
+  z-index: 2000;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+}
+
+#post-modal.open {
+  display: flex;
+}
+
+/* Modal content */
+#post-modal .modal-content {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  max-width: 1000px;   /* Desktop limit */
+  max-height: 90vh;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Left (media) */
+#modal-left {
+  flex: 2;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#modal-left img, 
+#modal-left video {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Right (comments + details) */
+#modal-right {
+  flex: 1;
+  min-width: 300px !important;
+  max-width: 400px !important;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid #eee;
+}
+.modal-right {width:420px; display:flex; flex-direction:column; border-left:1px solid #eee;}
+
+/* Comments scroll */
+#comments-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 16px;
+}
+
+/* Comment input */
+.comment-input-wrapper {
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid #ddd;
+  background: #fff;
+}
+.comment-input-wrapper input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+}
+.comment-input-wrapper button {
+  margin-left: 8px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 20px;
+  background: black;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* Stories row */
+.stories {
+  display: flex;
+  gap: 15px;
+  padding: 15px;
+  overflow-x: auto;
+  margin-bottom: 20px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+
+.story {
+  text-align: center;
+  cursor: pointer;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%; /* ensures circle */
+  border: 2px solid #ff3e6c; /* story ring */
+  overflow: hidden; /* makes child respect circle */
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.story img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%; /* make image itself circular */
+  object-fit: cover;
+  border: none; /* remove extra border */
+}
+
+
+.story p {
+  font-size: 12px;
+  margin-top: 5px;
+  color: #333;
+}
+
+/* Modal for story */
+.story-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.9);
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  flex-direction: column;
+}
+.story-modal>button{
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 20px;
+}
+
+.story-content {
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+  text-align: center;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.story-content video,
+.story-content img {
+  max-width: 100%;
+  max-height: 80vh;
+  border-radius: 10px;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 24px;
+  color: #fff;
+  cursor: pointer;
+}
+
+#storyUsername {
+  color: #fff;
+  margin-top: 10px;
+}
+
+.story-header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 10px;
+  color: #fff;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
+  z-index: 10;
+}
+
+.story-media {
+  max-width: 100%;
+  max-height: 90vh;
+  border-radius: 10px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.story-nav{
+  background: rgba(255,255,255,0.3);
+  border: none;
+  color: #fff;
+  font-size: 20px;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  height: 40px;
+}
+
+.story-box{
+  display: flex;
+  align-items: center;
+  /* padding: 20px; */
+}
+
+.story-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.story-user-info {
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+}
+
+.story-profile-pic {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.story-username {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.story-time {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-left: 6px;
+}
+
+.progress-bar {
+  width: 95%;
+  height: 3px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress {
+  width: 0%;
+  height: 100%;
+  background: white;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+  }
+
+  .modal-content {
+    background: #fff;
+    margin: 5% auto;
+    padding: 20px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+  }
+
+  .close {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    font-size: 24px;
+    cursor: pointer;
+  }
+
+  /* Overlay */
+#createPostModal {
+  display: none; /* hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+}
+#createStoryModal {
+  display: none; /* hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Modal container */
+.create-post-container {
+  background: #fff;
+  width: 95%;
+  max-width: 450px;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  position: relative;
+  animation: fadeIn 0.3s ease;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Heading */
+.create-post-container h2 {
+  margin-bottom: 15px;
+  font-size: 1.4rem;
+  text-align: center;
+  color: #222;
+}
+
+/* Form groups */
+.create-post-container .form-group {
+  margin-bottom: 15px;
+}
+
+.create-post-container label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.create-post-container input[type="file"],
+.create-post-container textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.create-post-container textarea {
+  resize: none;
+  min-height: 80px;
+}
+
+/* Button */
+.create-post-container button {
+  width: 100%;
+  padding: 12px;
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.create-post-container button:hover {
+  background: #333;
+}
+
+/* Close Button */
+.close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #999;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close:hover {
+  color: #000;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {opacity: 0; transform: scale(0.95);}
+  to {opacity: 1; transform: scale(1);}
+}
+
+.stories {
+  display: flex;
+  gap: 15px;
+  padding: 10px;
+  overflow-x: auto;
+}
+
+.story-wrapper {
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.story-circle {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #ddd; /* default border */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.story-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.add-story-icon {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: black;
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+  cursor: pointer;
+}
+
+#my-story-username {
+  font-size: 12px;
+  margin-top: 5px;
+  color: #333;
+}
+
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; /* prevent sideways scroll */
+  }
+
+  /* Hide right sidebar */
+  .sidebar-right {
+    display: none !important;
+  }
+
+  /* Left sidebar -> fixed bottom nav */
+  .sidebar-left {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-top: 1px solid #ddd;
+    background: #fff;
+    padding: 0;
+    z-index: 2000;
+  }
+
+  .sidebar-left h2 {
+    display: none; /* hide logo on mobile */
+  }
+
+  .sidebar-left nav {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .sidebar-left .nav-link {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0; /* hide text */
+    margin: 0;
+    padding: 0;
+  }
+
+  .sidebar-left .nav-link svg,
+  .sidebar-left .nav-link img {
+    margin: 0;
+    width: 28px;
+    height: 28px;
+  }
+
+  /* Main feed takes full height */
+  .main-feed {
+    position: relative;
+    width: 100%;
+    height: calc(100% - 60px); /* subtract bottom nav height */
+    margin: 0;
+    overflow-y: auto; /* scrollable feed */
+    padding-bottom: 70px; /* spacing so content not hidden by nav */
+  }
+
+   #post-modal .modal-content,
+  .modal-card {
+    width: 100% !important;
+    height: 90% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    border-radius: 0;
+    margin: auto;
+  }
+
+  #modal-left {
+    display: none; /* hide media panel */
+  }
+
+  #modal-right {
+    width: 50%;
+    flex: 1;
+    max-width: 100%;
+    z-index: 3000;
+  }
+
+  .actions, .post-header, .likes-row{
+    display: none;
+  }
+  .search-popup, .popup{
+    width: 100%;
+    height: 90%;
+    z-index: 1000;
+  }
+}
+
+.popup {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  height: 100%;
+  max-width: 400px;
+  width: 0; /* collapsed by default */
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 0 10px 10px 0;
+  box-shadow: 2px 0 15px rgba(0,0,0,0.3);
+  z-index: 2000;
+  transition: width 0.4s ease-in-out, opacity 0.3s ease;
+  opacity: 0; /* fade effect */
+  /* padding: 0 auto; */
+}
+
+.popup.show {
+  width: 300px; /* expand */
+  opacity: 1;
+  height: 100%;
+}
+
+.popup.hidden {
+  width: 0;
+  opacity: 0;
+}
+
+.notification-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.notification-item img {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.notification-item .post-preview {
+  width: 50px; height: 50px;
+  margin-left: auto;
+  object-fit: cover;
+  cursor: pointer;
+}
+/* .popup { display:flex; width:700px; height:500px; flex-direction: column; } */
+.conversations { width: 100%; border-right:1px solid #ddd; overflow-y:auto; }
+.chat-area { width: 60%; display:flex; flex-direction:column; }
+.chat-header { display:flex; align-items:center; padding:10px; border-bottom:1px solid #ddd; justify-content: space-between; }
+.chat-header img { width:40px; height:40px; border-radius:50%; margin-right:10px; }
+.chat-messages { flex:1; overflow-y:auto; padding:10px; }
+.chat-input { display:flex; border-top:1px solid #ddd; }
+.chat-input input { flex:1; padding:10px; border:none; }
+.chat-input button { padding:10px; }
+
+.message { max-width:70%; margin:5px; padding:10px; border-radius:10px; font-size:14px; position:relative; }
+.received { background:#111; color:#fff; margin-right:auto; }
+.status { font-size:10px; margin-top:3px; text-align:right; }
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.conversation-search {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.conversation-search input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.conversations {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.conversation-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.conversation-item:hover {
+  background: #f9f9f9;
+}
+
+.conversation-item img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  margin-right: 12px;
+}
+
+.conversation-info {
+  flex: 1;
+}
+
+.conversation-info .username {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.conversation-info .last-message {
+  font-size: 12px;
+  color: #666;
+}
+
+.search-user {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.search-user img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px; /* space between pic and text */
+  object-fit: cover;
+}
+
+.search-user .username {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.search-user .fullname {
+  font-size: 12px;
+  color: gray;
+}
+
+/* Modal background */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+/* Hidden state */
+.modal.hidden {
+  display: none;
+}
+
+/* Modal content */
+.modal-content {
+  width: 400px;
+  max-height: 600px;
+  background: #fff;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header */
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+  background: #f7f7f7;
+  font-weight: bold;
+}
+
+.chat-user-pic {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+}
+
+.close-btn {
+  margin-left: auto;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+/* Messages area */
+.chat-messages {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  background: #fafafa;
+}
+
+/* Message bubbles */
+.message {
+  max-width: 70%;
+  margin: 6px 0;
+  padding: 8px 12px;
+  border-radius: 15px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.sent {
+  color: white;
+  align-self: flex-end;
+  margin-left: auto;
+}
+
+.received {
+  background: #e5e5e5;
+  color: black;
+  align-self: flex-start;
+}
+
+/* Input */
+.chat-input {
+  display: flex;
+  border-top: 1px solid #ddd;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  outline: none;
+}
+
+.chat-input button {
+  padding: 10px 15px;
+  border: none;
+  background: #007bff;
+  color: white;
+  cursor: pointer;
+}
+
+.progress-bar-multi {
+  display: flex;
+  gap: 4px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.progress-segment {
+  flex: 1;
+  background: rgba(255,255,255,0.3);
+  height: 3px;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  background: white;
+  width: 0%;
+  height: 100%;
+  transition: width 0s;
+}
+.story-media-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.story-box {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.story-content {
+  position: relative;
+  max-width: 400px;  /* same width as your story media */
+  max-height: 700px; /* adjust to your story media height */
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+/* Buttons overlay only media area */
+.story-nav {
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  background: rgba(0,0,0,0);
+  border: none;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.story-nav.left {
+  left: 0;
+}
+
+.story-nav.right {
+  right: 0;
+}
+
+.chat-container {
+  display: flex;
+  width: 100%;
+  height: 90vh; /* total height of chat area */
+  background: #f8f8f8;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* RIGHT: chat modal */
+.chat-modal {
+  width: 70%;
+  background: #fafafa;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  z-index: 5000;
+  margin-left: 300px;
+}
+
+.chat-modal.hidden{
+  display: none;
+}
+.closeChat{cursor: pointer; font-size: 20px; background-color: transparent; border: none;}
+/* Chat header */
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+.chat-profile-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+/* Chat messages area */
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
+  background: #f2f2f2;
+}
+
+/* Chat input */
+.chat-input {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  background: #fff;
+  border-top: 1px solid #ddd;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.chat-input button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.chat-input button:hover {
+  background: #0056b3;
+}
+.my-message {
+  align-self: flex-end;
+  background-color: #e0e0e0;   /* light grey */
+  color: #000;
+  padding: 10px 14px;
+  border-radius: 16px 16px 4px 16px;
+  max-width: 75%;
+  word-wrap: break-word;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+  position: relative;
+}
+
+.my-message:hover {
+  background-color: #d6d6d6;
+}
+
+/* ✅ Message status ticks */
+.msg-status {
+  position: absolute;
+  bottom: 4px;
+  right: 8px;
+  font-size: 12px;
+  opacity: 0;                /* hidden by default */
+  transition: opacity 0.2s;
+}
+
+/* ✅ Show ticks when hovered or clicked */
+.my-message:hover .msg-status,
+.my-message.active .msg-status {
+  opacity: 1;
+}
+
+/* Their message */
+.their-message {
+  align-self: flex-start;
+  background-color: #222;       /* black highlight */
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 16px 16px 16px 4px;
+  max-width: 75%;
+  word-wrap: break-word;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Optional: smooth fade-in animation */
+.my-message, .their-message {
+  animation: fadeIn 0.2s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#chatMessages {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  overflow-y: auto;
+  height: 380px; /* adjust as needed */
+  background-color: #fafafa;
+}
+
+/* .conversation-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.conversation-item:hover {
+  background-color: #f8f8f8;
+}
+
+.profile-pic {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.conversation-info {
+  flex: 1;
+  margin-left: 10px;
+}
+
+.username {
+  font-size: 15px;
+  color: #111;
+}
+
+.last-message {
+  font-size: 13px;
+  color: #777;
+  margin-top: 2px;
+}
+
+.unread-badge {
+  background: #1877f2;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  margin-left: auto;
+  align-self: center;
+}
+
+.conversation-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.conversation-item:hover {
+  background-color: #f8f8f8;
+}
+
+.profile-pic {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.conversation-info {
+  flex: 1;
+  margin-left: 10px;
+}
+
+.username {
+  font-size: 15px;
+  color: #111;
+}
+
+.last-message {
+  font-size: 13px;
+  color: #777;
+  margin-top: 2px;
+}
+
+.unread-badge {
+  background: #1877f2;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+} */
+.my-message { position: relative; align-self: flex-end; /* ...your styles... */ }
+.their-message { align-self: flex-start; /* ... */ }
+
+.msg-status {
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity .12s ease;
+}
+
+/* show on hover or click */
+.my-message:hover .msg-status,
+.my-message.active .msg-status { opacity: 1; }
+
+.msg-status.sent { color: #777; }
+.msg-status.seen { color: #000; }
+
+/* message text wrapper so text doesn't overlap ticks */
+.msg-text { padding-right: 36px; white-space: pre-wrap; word-break: break-word; }
+
+  </style>
+</head>
+<body>
+  <div class="sidebar-left">
+    <h2>Postify</h2>
+<nav>
+  <a href="home.html" class="nav-link">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M3 9.5L12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V9.5z"/>
+    </svg>
+    Home
+  </a>
+
+  <a href="javascript:void(0)" onclick="openSearchPopup()" class="nav-link">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="7"/>
+      <line x1="16.5" y1="16.5" x2="21" y2="21"/>
+    </svg>
+    Search
+  </a>
+
+  <a href="#" class="nav-link" onclick="openMessagesPopup(user.user_id)">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+    Messages
+  </a>
+
+  <a href="#" class="nav-link" id="openNotifications">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
+      <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+    </svg>
+    Notification
+  </a>
+
+  <a class="nav-link create-btn" id="openCreateModal">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <line x1="12" y1="5" x2="12" y2="19"/>
+    <line x1="5" y1="12" x2="19" y2="12"/>
+  </svg>
+  Create
+</a>
+
+  <a href="reels.html" class="nav-link">
+  <svg xmlns="http://www.w3.org/2000/svg" 
+       width="20" height="20" viewBox="0 0 24 24" 
+       fill="none" stroke="currentColor" stroke-width="2" 
+       stroke-linecap="round" stroke-linejoin="round" 
+       class="icon">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+    <line x1="2" y1="9" x2="22" y2="9"></line>
+    <line x1="9" y1="2" x2="15" y2="9"></line>
+    <line x1="3" y1="2" x2="9" y2="9"></line>
+    <line x1="15" y1="2" x2="21" y2="9"></line>
+    <polygon points="10,17 16,14 10,12"></polygon>
+  </svg>
+  Reels
+</a>
+
+
+  <a href="profile.html" class="nav-link">
+    <img id="profile-pic" src="/uploads/default.png" alt="">
+    Profile
+  </a>
+
+</nav>
+    <!-- <a href="#"> Settings</a> -->
+  </div>
+  <div class="main-feed">
+<div class="stories" id="stories">
+  <div class="story-wrapper" id="my-story">
+    <div class="story-circle">
+      <img id="my-story-pic" src="uploads/default.png" alt="Your Story">
+      <span class="add-story-icon" onclick="openStoryUpload()">+</span>
+    </div>
+    <p id="my-story-username">You</p>
+  </div>
+</div>
+<div id="storyModal" class="story-modal">
+  <div class="story-header">
+    <span id="storyUsername"></span>
+    <button onclick="closeStoryModal()">✕</button>
+  </div>
+
+  <div class="story-box">
+    <button onclick="prevStory()" class="story-nav left" id="prevStory"></button>
+    <div id="storyContent" class="story-content"></div>
+    <button onclick="nextStory()" class="story-nav right" id="nextStory"></button>
+  </div>
+</div>
+    <div id="feedContainer"></div>
+  </div>
+  <div class="sidebar-right">   
+    <div class="suggestions" id="suggestions">
+      <h3>Suggestions for you</h3>
+      <div class="suggestion" style="cursor: pointer;">
+        <img src="uploads/default.png" alt="user">
+        <span>@postifyuser</span>
+      </div>
+    </div>
+  </div>
+<div id="post-modal" class="modal" onclick="if(event.target===this) closeModal()">
+  <div class="modal-card" role="dialog" aria-modal="true">
+    <div class="modal-left" id="modal-left"></div>
+    <div class="modal-right">
+      <div class="post-header">
+        <img id="modal-author-pic" src="/uploads/default.png" alt="author">
+        <div>
+          <div id="modal-author" style="font-weight:700">username</div>
+          <div class="muted" id="modal-created">time</div>
+        </div>
+        <div>
+          <button onclick="closeModal()" class="close-btn">✕</button>
+        </div>
+      </div>
+      <div class="post-body">
+        <div id="comments-list" class="comments"></div>
+      </div>
+      <div class="likes-row">
+        <div style="margin-top:12px">
+          <div class="caption muted"><strong id="modal-author-2"></strong> 
+            <span id="modal-caption" style="font-weight:400"></span>
+          </div>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="modalLikeBtn" class="likeBtn">♡</button>
+        <div id="likeCountText">0</div>
+        <button id="focusCommentBtn">💬</button>
+        <div id="commentCountText">0</div>
+      </div>
+      <div style="margin-left:10px;" id="likedBySmall" class="muted"></div>
+      <div class="add-comment">
+        <input id="commentInput" placeholder="Add a comment..." />
+        <button id="commentBtn">Post</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="createPostModal" class="modal">
+  <div class="create-post-container">
+    <span class="close" id="closeModal">&times;</span>
+    <h2>Create a New Post</h2>
+
+    <form id="createPostForm">
+      <div class="form-group">
+        <label for="media">Upload Image/Video</label>
+        <input type="file" id="media" name="media" accept="image/*,video/*" required>
+      </div>
+
+      <div class="form-group">
+        <label for="caption">Caption</label>
+        <textarea id="caption" name="caption" placeholder="Write a caption..."></textarea>
+      </div>
+
+      <button type="submit">Post</button>
+    </form>
+  </div>
+</div>
+
+<div id="createStoryModal" class="modal">
+  <div class="create-post-container" id="create-story-modal" style="margin-top: 30px;">
+   <h2>Create a Story</h2>
+   <form id="createStoryForm">
+     <div class="form-group">
+      <label for="storyMedia">Upload Story (Image/Video)</label>
+      <input type="file" id="storyMedia" name="storyMedia" accept="image/*,video/*" required>
+     </div>
+     <button type="submit">Add to Story</button>
+   </form>
+</div>
+</div>
+
+<div id="notificationPopup" class="popup hidden">
+  <div class="popup-header">
+    <h3>Notifications</h3>
+    <span onclick="closePopup()" style="cursor: pointer;">✖</span>
+  </div>
+  <div id="notificationList" class="popup-content"></div>
+</div>
+
+<!-- Message Popup -->
+<div id="messagesPopup" class="popup hidden">
+   <!-- Header --> 
+    <div class="popup-header"> 
+      <h3>Messages</h3> 
+      <span onclick="closeMessagesPopup()" id="closeMessagePopup" style="cursor: pointer;">✖</span>
+     </div> 
+     <!-- Search bar --> 
+      <div class="conversation-search"> 
+        <input type="text" id="searchConversation" placeholder="Search or start new chat..." > 
+      </div> 
+      <div id="searchResult" class="search-results"></div>
+      <!-- Conversations list --> 
+       <div class="conversations" id="conversationsList"></div> 
+</div>
+
+  <div id="chatModal" class="chat-modal hidden">
+    <!-- Chat window -->
+    <div class="chat-header">
+      <div style="display: flex; align-items: center;">
+        <img id="chatProfilePic" class="chat-profile-pic" src="uploads/default.png">
+        <span id="chatUsername">Username</span>
+      </div>
+      <button onclick="closeChatModal()" class="closeChat" >X</button>
+    </div>
+
+    <div id="chatMessages" class="chat-messages"></div>
+
+    <div class="chat-input">
+      <input type="text" id="chatText" placeholder="Type a message...">
+      <button id="sendMessage">Send</button>
+    </div>
+  </div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const username = params.get("user");  // now always works
+
+  async function loadProfile() {
+    if (!username) {
+      // document.querySelector(".main").innerHTML = "<p>User not found</p>";
+      return;
+    }
+
+    try {
+      const res = await fetch(`http://localhost:3000/api/profile?username=${username}`);
+      const data = await res.json();
+
+      if (res.ok) {
+        document.getElementById("username").innerText = "@" + data.username;
+        document.getElementById("profile-pic").src = data.profile_pic || "default.png";
+        document.getElementById("full_name").innerText = data.full_name || "";
+        document.getElementById("bio").innerText = data.bio || "";
+        document.getElementById("followers-count").innerText = data.followers;
+        document.getElementById("following-count").innerText = data.following;
+        document.getElementById("posts-count").innerText = data.postCount;
+        document.getElementById("user-story").src = data.profile_pic || "default.png";
+        document.getElementById("user-username").innerText = data.username;
+
+        // handle follow/unfollow button if logged in user !== profile owner
+        const followBtn = document.getElementById("follow-btn");
+        if (followBtn) {
+          followBtn.onclick = async () => {
+            await fetch("http://localhost:3000/api/follow", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ follower: CURRENT_USER, following: data.username })
+            });
+            loadProfile(); // refresh counts
+          };
+        }
+
+      } else {
+        document.querySelector(".main").innerHTML = "<p>" + data.error + "</p>";
+      }
+    } catch (err) {
+      console.error("Error fetching profile:", err);
+      document.querySelector(".main").innerHTML = "<p>Error loading profile</p>";
+    }
+  }
+
+  loadProfile();
+
+  const API = "http://localhost:5000"; 
+
+  // Get user from localStorage
+const user = JSON.parse(localStorage.getItem("user"));
+let currentUser = user?.username;  // ← always gives you logged-in username
+
+  if (!user) {
+    // If no user logged in, send back to login
+    window.location.href = "index.html";
+    document.getElementById("my-story-pic").src = user.profile_pic || "uploads/default.png";
+    document.getElementById("my-story-username").innerText = user.username;
+  }
+
+  let allUsers = []; // will hold user list
+
+// Open popup
+function openSearchPopup() {
+  document.getElementById('searchPopup').classList.add('open');
+  loadUsers(); // fetch users once
+}
+
+// Close popup
+function closeSearchPopup() {
+  document.getElementById('searchPopup').classList.remove('open');
+}
+
+// Fetch all users (API)
+async function loadUsers() {
+  try {
+    const res = await fetch(`http://localhost:3000/search`);
+    allUsers = await res.json();
+    renderUsers(allUsers);
+  } catch (err) {
+    console.error('Error loading users', err);
+  }
+}
+
+// Render users list
+function renderUsers(users) {
+  const container = document.getElementById('searchResults');
+  container.innerHTML = '<div class="muted" style="padding:20px;text-align:center">No users found</div>';
+  if (!users.length) {
+    container.innerHTML = '<div class="muted" style="padding:20px;text-align:center">No users found</div>';
+    return;
+  }
+  users.forEach(u => {
+    const div = document.createElement('div');
+    div.className = 'user-item';
+    div.innerHTML = `
+      <img src="${u.profile_pic || '/uploads/default.png'}" alt="pic">
+      <div>
+        <div class="username">@${u.username}</div>
+        <div class="fullname">${u.full_name || ''}</div>
+      </div>
+    `;
+    div.onclick = () => window.location.href = `userProfile.html?user=${encodeURIComponent(u.username)}`;
+    container.appendChild(div);
+  });
+}
+
+// Filter users on search
+async function filterUsers() {
+  const input = document.getElementById("searchInput").value.toLowerCase();
+  const resultsDiv = document.getElementById("searchResults");
+  resultsDiv.innerHTML = "";
+
+  if (input.length === 0) {
+    resultsDiv.innerHTML = "<p>Type to search...</p>";
+    return;
+  }
+
+  try {
+    const res = await fetch(`http://localhost:3000/search?q=${input}`);
+    const users = await res.json();
+    console.log(users);
+    if (users.length === 0) {
+      resultsDiv.innerHTML = "<p>No users found</p>";
+    } else {
+      users.forEach(u => {
+        const div = document.createElement("div");
+        div.classList.add("search-item");
+        div.innerHTML = `
+          <img src="${u.profile_pic}" alt="${u.username}">
+          <span><b>${u.username}</b> <br> ${u.full_name}</span>
+        `;
+        div.onclick = () => {
+         window.location.href = `userProfile.html?user=${encodeURIComponent(u.username)}`;
+        };
+
+        resultsDiv.appendChild(div);
+      });
+    }
+  } catch (error) {
+    resultsDiv.innerHTML = "<p>Error fetching users</p>";
+  }
+}
+
+async function loadFeed() {
+  try {
+    console.log("currentUser",currentUser);
+    const res = await fetch(`http://localhost:3000/api/feed?username=${currentUser}`);
+    const posts = await res.json(); // debug
+    console.log("Feed posts:", posts);
+    const feedContainer = document.getElementById("feedContainer");
+    feedContainer.innerHTML = "";
+
+    const profileRes = await fetch(`http://localhost:3000/api/profile?username=${encodeURIComponent(currentUser)}`);
+    const profile = await profileRes.json();
+
+    document.getElementById("profile-pic").src = profile.profile_pic || "/uploads/default.png";
+
+
+    posts.forEach(post => {
+      const timeAgo = (dateString) => {
+  const now = new Date();
+  const postDate = new Date(dateString);
+  const seconds = Math.floor((now - postDate) / 1000);
+
+  let interval = Math.floor(seconds / 31536000);
+  if (interval >= 1) return interval + (interval === 1 ? " year ago" : " years ago");
+
+  interval = Math.floor(seconds / 2592000);
+  if (interval >= 1) return interval + (interval === 1 ? " month ago" : " months ago");
+
+  interval = Math.floor(seconds / 86400);
+  if (interval >= 1) return interval + (interval === 1 ? " day ago" : " days ago");
+
+  interval = Math.floor(seconds / 3600);
+  if (interval >= 1) return interval + (interval === 1 ? " hour ago" : " hours ago");
+
+  interval = Math.floor(seconds / 60);
+  if (interval >= 1) return interval + (interval === 1 ? " minute ago" : " minutes ago");
+
+  return "just now";
+};
+
+      feedContainer.innerHTML += `
+        <div class="post">
+          <div class="post-header">
+            <img src="${post.profile_pic}" class="avatar-small" alt="pfp" />
+            <span>@${post.username}</span>
+            <span class="time">${timeAgo(post.created_at)}</span>
+          </div>
+
+          <div class="post-media">
+            ${post.video_url 
+            ? `<div class="video-wrapper">
+  <video 
+    id="postVideo" 
+    src="${post.video_url}" 
+    autoplay 
+    muted 
+    loop 
+    playsinline
+  ></video>
+
+  <!-- Custom mute/unmute button -->
+  <button class="mute-btn" onclick="toggleMute('postVideo')">🔇</button>
+</div>
+` 
+            : (post.image_url ? `<img src="${post.image_url}" alt="post"/>` : "")
+            }
+          </div>
+
+
+          <div class="post-actions">
+            <button onclick="likePost(${post.id})" 
+              class="likeBtn ${post.likedByCurrentUser ? "liked" : ""}" 
+              id="likeBtn-${post.id}">
+              ${post.likedByCurrentUser ? "❤" : "♡"}
+            </button>
+            <button onclick="openPostModal(${post.id})" class="commentBtn">💬</button>
+          </div>
+
+          <div id="likes-${post.id}" class="likes">
+            ${post.likes} ${post.likes == 1 ? "like" : "likes"}
+          </div>
+
+          <div class="caption"><b>@${post.username}</b> ${post.content}</div>
+
+          <div class="comment-box">
+            <input type="text" id="comment-${post.id}" placeholder="Add a comment..." />
+            <button onclick="addComment(${post.id})">Post</button>
+          </div>
+        </div>
+      `;
+    });
+  } catch (err) {
+    console.error("Error loading feed:", err);
+  }
+}
+async function likePost(postId) {
+  console.log("Sending like for post:", postId, "user:", user.user_id, currentUser);
+
+  try {
+    const res = await fetch("http://localhost:3000/api/like", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        postId,
+        userId: user.user_id,   // must exist in Users table
+        username: currentUser   // must not be null
+      })
+    });
+
+    const data = await res.json();
+    console.log("Like response:", data);
+
+    if (res.ok) {
+      const likeBtn = document.getElementById(`likeBtn-${postId}`);
+      const likesDiv = document.getElementById(`likes-${postId}`);
+      likeBtn.innerText = data.liked ? "❤" : "♡";
+      likeBtn.classList.toggle("liked", data.liked);
+      if (likesDiv) {
+        likesDiv.textContent = `${data.count} ${data.count === 1 ? "like" : "likes"}`;
+      }
+    } else {
+      console.error("Like failed:", data);
+    }
+  } catch (err) {
+    console.error("Error liking post:", err);
+  }
+}
+async function addComment(postId) {
+  const input = document.getElementById(`comment-${postId}`);
+  const text = input.value.trim();
+  const postid = postId;
+  if (!text) return;
+  await fetch("http://localhost:3000/api/comment", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ postid, username: currentUser, comment: text })
+  });
+  input.value = "";
+}
+async function toggleFollow(followerId, followingId, buttonEl) {
+  const isFollowing = buttonEl.innerText === "Following";
+
+  try {
+    let res;
+    if (isFollowing) {
+      res = await fetch(`${API}/follow?follower_id=${followerId}&following_id=${followingId}`, {
+        method: "DELETE"
+      });
+    } else {
+      res = await fetch(`${API}/follow`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ follower_id: followerId, following_id: followingId })
+      });
+    }
+  } catch (err) {
+    console.error("Network error:", err);
+  }
+}
+loadFeed();
+async function suggestion() {
+  const container = document.getElementById("suggestions");
+  console.log("user id: ",user.user_id);
+  try {
+    const res = await fetch(
+      `http://localhost:3000/api/suggestion?userId=${user.user_id}&username=${user.username}`
+    );
+    const users = await res.json();
+    console.log("users: ", users);
+
+    container.innerHTML = "<h3>Suggestions for you</h3>";
+
+    if (!users.length) {
+      container.innerHTML += "<p style='padding:10px;color:gray'>No suggestions</p>";
+      return;
+    }
+
+    users.forEach(u => {
+      const div = document.createElement("div");
+      div.className = "suggestion";
+
+      // User info
+      div.innerHTML = `
+        <div class="user-info">
+          <img src="${u.profile_pic || "uploads/default.png"}" alt="${u.username}">
+          <span class="username">@${u.username}</span>
+        </div>
+      `;
+
+      // Follow button (always "Follow")
+      const btn = document.createElement("button");
+      btn.className = "follow-btn";
+      btn.textContent = "Follow";
+
+      // Follow handler
+      btn.onclick = async (e) => {
+        e.stopPropagation();
+        try {
+          const res = await fetch("http://localhost:3000/api/follow", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              follower_id: user.user_id,
+              following_id: u.user_id
+            }),
+          });
+
+          const data = await res.json();
+          if (data.success) {
+            btn.textContent = "Following";
+            btn.disabled = true;
+          } else {
+            alert(data.message);
+          }
+        } catch (err) {
+          console.error("Follow error:", err);
+        }
+      };
+
+      // Add button
+      div.appendChild(btn);
+
+      // Profile redirect
+      div.querySelector(".username").onclick = () =>
+        (window.location.href = `userProfile.html?user=${encodeURIComponent(u.username)}`);
+
+      container.appendChild(div);
+    });
+  } catch (error) {
+    console.error("Error fetching suggestions:", error);
+    container.innerHTML = "<p style='color:red'>Error loading suggestions</p>";
+  }
+}
+suggestion();
+async function openPostModal(postId){
+   currentPostId = postId;
+  const res = await fetch(`http://localhost:3000/api/post/${postId}`);
+  if (!res.ok) { alert('Failed to load post'); return; }
+  const post = await res.json();
+  const modalLeft = document.getElementById('modal-left');
+  document.querySelectorAll('.posts-grid video').forEach(v => { try{ v.pause(); } catch(e){} });
+  modalLeft.innerHTML = '';
+  let mediaEl;
+  if (post.video_url) {
+    mediaEl = document.createElement('video');
+    mediaEl.src = post.video_url;
+    mediaEl.controls = true;
+    mediaEl.autoplay = true;
+    mediaEl.loop = true;
+    mediaEl.playsInline = true;
+    mediaEl.muted = false;
+  } else {
+    mediaEl = document.createElement('img');
+    mediaEl.src = post.image_url;
+    mediaEl.alt = 'Post';
+  }
+  mediaEl.style.width = '100%';
+  modalLeft.appendChild(mediaEl);
+  document.getElementById('modal-author-pic').src = post.profile_pic || '/uploads/default.png';
+  document.getElementById('modal-author').textContent = post.username;
+  document.getElementById('modal-author-2').textContent = post.username;
+  document.getElementById('modal-caption').textContent = post.content || '';
+  document.getElementById('modal-created').textContent = new Date(post.created_at).toLocaleString();
+  const likeBtn = document.getElementById('modalLikeBtn');
+  likeBtn.dataset.postId = postId;
+  await refreshLikes(postId);
+  await loadComments(postId);
+  await refreshComments(postId);
+  likeBtn.onclick = async () => {
+    likeBtn.classList.toggle('liked');
+    likeBtn.textContent = likeBtn.classList.contains('liked') ? '♥' : '♡';
+    await fetch(`http://localhost:3000/api/like`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ postId, username: user.username })
+    });
+    await refreshLikes(postId);
+  };
+  document.getElementById('commentBtn').onclick = async () => {
+    const input = document.getElementById('commentInput');
+    const comment = input.value.trim();
+    if (!comment) return;
+    console.log("currentPostId, user.username, comment: ", currentPostId, user.username, comment);
+    await fetch(`http://localhost:3000/api/comment`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    postid: currentPostId,   // use "postId", not "currentPostId"
+    username: user.username, // make sure "user.username" exists
+    comment
+  })
+});
+    input.value = '';
+    await loadComments(postId);
+    await refreshComments(postId);
+  };
+  document.getElementById('focusCommentBtn').onclick = () => document.getElementById('commentInput').focus();
+  document.getElementById('post-modal').classList.add('open');
+}
+function closeModal(){
+  document.querySelectorAll('#modal-left video').forEach(v => { try{ v.pause(); } catch(e){} });
+  document.getElementById('post-modal').classList.remove('open');
+  document.getElementById('comments-list').innerHTML = '';
+  document.getElementById('commentInput').value = '';
+  document.getElementById('likeCountText').textContent = '';
+}
+async function refreshLikes(postId) {
+  try {
+    const res = await fetch(
+      `http://localhost:3000/api/likes/${postId}?username=${currentUser}`
+    );
+    const data = await res.json();   
+    document.getElementById("likeCountText").textContent = data.count;
+    document.getElementById("modalLikeBtn").classList.toggle("liked", data.likedByUser);
+    document.getElementById("modalLikeBtn").textContent = data.likedByUser ? "♥" : "♡";
+  } catch (err) {
+    console.error("Error refreshing likes:", err);
+  }
+}
+async function loadComments(postId) {
+  try {
+    const res = await fetch(`http://localhost:3000/api/post/comments/${postId}`);
+    const comments = await res.json();
+    const container = document.getElementById("comments-list");
+    container.innerHTML = "";
+
+    if (!Array.isArray(comments) || comments.length === 0) {
+      const placeholder = document.createElement("div");
+      placeholder.className = "muted";
+      placeholder.style.padding = "20px";
+      placeholder.style.textAlign = "center";
+      placeholder.textContent = "No comments yet.";
+      container.appendChild(placeholder);
+      return;
+    }
+    comments.forEach(c => {
+      const div = document.createElement("div");
+      div.className = "comment";
+      const createdAt = new Date(c.created_at).toLocaleString();
+      div.innerHTML = `
+        <img src="${c.profile_pic || '/uploads/default.png'}" alt="pfp" class="comment-pic">
+        <div class="comment-content">
+          <div class="comment-username">@${c.username}</div>
+          <div class="comment-text">${c.comment}</div>
+          <div class="comment-time">${createdAt}</div>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+  } catch (err) {
+    console.error("Error loading comments:", err);
+  }
+}
+function toggleMute(videoId) {
+  const video = document.getElementById(videoId);
+  const btn = video.parentElement.querySelector(".mute-btn");
+  if (video.muted) {
+    video.muted = false;
+    btn.textContent = "🔊";
+  } else {
+    video.muted = true;
+    btn.textContent = "🔇";
+  }
+}
+async function refreshComments(postId) {
+  try {
+    const res = await fetch(`http://localhost:3000/api/post/comments/${postId}`);
+    const data = await res.json();
+    document.getElementById("commentCountText").textContent = data.length;
+  } catch (err) {
+    console.error("Error refreshing comment count:", err);
+  }
+}
+let storiesData = [];           // All users & their stories from DB
+let currentUserStories = [];    // Stories of currently opened user
+let currentIndex = 0;           // Index inside currentUserStories
+async function loadStories() {
+  try {
+    const res = await fetch("http://localhost:3000/api/stories");
+    storiesData = await res.json();
+
+    const container = document.getElementById("stories");
+    container.innerHTML = ""; // clear old stories
+
+    // ✅ Always add logged-in user’s default story first
+    const myStoryDiv = document.createElement("div");
+    myStoryDiv.classList.add("story-wrapper");
+    myStoryDiv.innerHTML = `
+      <div class="story-circle">
+        <img src="${user.profile_pic || '/uploads/default.png'}" 
+             alt="Your Story" class="story">
+        <span class="add-story-icon" onclick="openStoryUpload()">+</span>
+      </div>
+      <p>${user.username || "Postify User"}</p>
+    `;
+    container.appendChild(myStoryDiv);
+
+    // ✅ Then add other users’ stories
+    storiesData.forEach((user, userIndex) => {
+      const div = document.createElement("div");
+      div.classList.add("story-wrapper");
+      div.innerHTML = `
+        <div class="story-circle">
+          <img src="${user.profile_pic || '/uploads/default.png'}" 
+               alt="${user.username}'s story" class="story">
+        </div>
+        <p>${user.username}</p>
+      `;
+      div.onclick = () => openStory(userIndex, 0);  // open first story of that user
+      container.appendChild(div);
+    });
+
+  } catch (err) {
+    console.error("Error loading stories:", err);
+  }
+}// Open story modal
+function openStory(userIndex, storyIndex) {
+  currentUserStories = storiesData[userIndex].stories;
+  currentIndex = storyIndex;
+
+  showStory(currentIndex);
+
+  document.getElementById("storyModal").style.display = "flex";
+}
+function closeStoryModal() {
+  const modal = document.getElementById("storyModal");
+  modal.style.display = "none";
+
+  const content = document.getElementById("storyContent");
+  content.innerHTML = ""; // clear media
+}
+let storyTimer = null;
+function showStory(index) {
+  const story = currentUserStories[index];
+  const content = document.getElementById("storyContent");
+
+  if (!story) return;
+
+  // Stop any previous timer
+  if (storyTimer) {
+    clearTimeout(storyTimer);
+    storyTimer = null;
+  }
+
+  content.innerHTML = "";
+
+  const user = storiesData.find(u => u.stories.some(s => s.id === story.id));
+  const totalStories = currentUserStories.length;
+
+  const storyContainer = document.createElement("div");
+  storyContainer.classList.add("story-container");
+
+  // ⏳ Create multiple progress bars (one per story)
+  let progressBars = "";
+  for (let i = 0; i < totalStories; i++) {
+    progressBars += `<div class="progress-segment"><div class="progress-fill" id="bar-${i}"></div></div>`;
+  }
+
+storyContainer.innerHTML = `
+  <div class="story-header">
+    <div class="progress-bar-multi">${progressBars}</div>
+    <div class="story-user-info">
+      <img src="${user?.profile_pic || '/default.jpg'}" class="story-profile-pic">
+      <div>
+        <span class="story-username">${user?.username || ""}</span>
+        <span class="story-time">${timeAgo(story.created_at)}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-media-wrapper">
+    <!-- Media will be appended here dynamically -->
+    // <button class="story-nav left" onclick="prevStory()"></button>
+    // <button class="story-nav right" onclick="nextStory()"></button>
+  </div>
+`;
+  // 🖼️ Add media
+  if (story.media_type === "image") {
+    const img = new Image();
+    img.src = story.media_url;
+    img.classList.add("story-media");
+
+    img.onload = () => startProgressFor(index, 5000);
+    storyContainer.appendChild(img);
+  } else if (story.media_type === "video") {
+    const video = document.createElement("video");
+    video.src = story.media_url;
+    video.autoplay = true;
+    video.playsInline = true;
+    video.classList.add("story-media");
+
+    video.onloadedmetadata = () =>
+      startProgressFor(index, video.duration * 1000);
+    video.onended = () => nextStory();
+    storyContainer.appendChild(video);
+  }
+
+  content.appendChild(storyContainer);
+}
+function startProgressFor(index, duration) {
+  const fill = document.getElementById(`bar-${index}`);
+  if (!fill) return;
+
+  // Immediately mark previous bars as filled
+  for (let i = 0; i < index; i++) {
+    const prev = document.getElementById(`bar-${i}`);
+    if (prev) {
+      prev.style.transition = "none";
+      prev.style.width = "100%";
+    }
+  }
+
+  // Reset this bar
+  fill.style.transition = "none";
+  fill.style.width = "0%";
+
+  // Animate current bar
+  setTimeout(() => {
+    fill.style.transition = `width ${duration}ms linear`;
+    fill.style.width = "100%";
+  }, 50);
+
+  // Safely handle auto move
+  if (storyTimer) clearTimeout(storyTimer);
+  storyTimer = setTimeout(() => {
+    storyTimer = null;
+    nextStory();
+  }, duration);
+}
+function timeAgo(dateString) {
+  const now = new Date();
+  const past = new Date(dateString);
+  const seconds = Math.floor((now - past) / 1000);
+  if (seconds < 60) return "just now";
+  if (seconds < 3600) return Math.floor(seconds / 60) + " min ago";
+  return Math.floor(seconds / 3600) + " h ago";
+}
+function nextStory() {
+  if (storyTimer) {
+    clearTimeout(storyTimer);
+    storyTimer = null;
+  }
+
+  if (currentIndex < currentUserStories.length - 1) {
+    currentIndex++;
+    showStory(currentIndex); // ✅ directly show next story
+  } else {
+    // ✅ End of all stories for this user
+    closeStoryModal();
+  }
+}
+function prevStory() {
+  if (storyTimer) {
+    clearTimeout(storyTimer);
+    storyTimer = null;
+  }
+
+  if (currentIndex > 0) {
+    currentIndex--;
+    showStory(currentIndex); // ✅ directly show previous story
+  } else {
+    // ✅ Optional: you could loop back or keep first story
+    showStory(0);
+  }
+}
+window.onload = loadStories;
+ const modal = document.getElementById("createPostModal");
+  const openBtn = document.getElementById("openCreateModal");
+  const closeBtn = document.getElementById("closeModal");
+   openBtn.onclick = (e) => {
+    e.preventDefault(); // prevent <a> default behavior
+    modal.style.display = "flex";
+  };
+  closeBtn.onclick = () => {
+    modal.style.display = "none";
+  };
+  window.onclick = (event) => {
+    if (event.target === modal) {
+      modal.style.display = "none";
+    }
+  };
+async function openStoryUpload() {
+  document.getElementById("createStoryModal").style.display = "flex";
+}
+function closeStoryUpload() {
+  document.getElementById("create-story-modal").style.display = "none";
+}
+const StoryForm = document.getElementById("createStoryForm");
+console.log("StoryForm",StoryForm);
+StoryForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(StoryForm);
+  formData.append("username", user.username);
+
+  console.log("Story Media:", formData.get("storyMedia"));
+  console.log("Username:", formData.get("username")); 
+
+  try {
+    const res = await fetch("http://localhost:3000/api/create-story", {
+      method: "POST",
+      body: formData   // ✅ send FormData directly
+    });
+
+    const data = await res.json();
+    alert(data.message);
+
+    closeStoryUpload();
+    loadStories(); // refresh stories grid
+  } catch (err) {
+    console.error("Error uploading story:", err);
+  }
+});
+document.getElementById("createPostModal").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const media = document.getElementById("media").files[0];
+  const caption = document.getElementById("caption").value;
+
+  const formData = new FormData();
+  formData.append("username", currentUser);
+  formData.append("caption", caption);
+  if (media) formData.append("media", media);
+
+  try {
+    const res = await fetch("http://localhost:3000/api/create-post", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await res.json();
+    alert(data.message);
+  } catch (err) {
+    console.error("Error:", err);
+    alert("Something went wrong!");
+  }
+});
+document.getElementById("openNotifications").onclick = async () => {
+  const popup = document.getElementById("notificationPopup");
+  popup.classList.remove("hidden");
+   popup.classList.add("show");
+
+  const res = await fetch(`http://localhost:3000/api/notifications/${user.user_id}`);
+  const notifications = await res.json();
+  console.log(res);
+  const list = document.getElementById("notificationList");
+  list.innerHTML = "";
+
+notifications.forEach(n => {
+  const div = document.createElement("div");
+  div.className = "notification-item";
+
+  // Profile image
+  const img = document.createElement("img");
+  img.src = n.profile_pic || "uploads/default.png";
+  img.onclick = () => window.location.href = `userProfile.html?user=${encodeURIComponent(n.username)}`;
+
+  // Message text
+  let msg = "";
+  if (n.type === "like") {
+    msg = n.total > 1 
+      ? `${n.username} and ${n.total - 1} others liked your post`
+      : `${n.username} liked your post`;
+  } else if (n.type === "comment") {
+    msg = `${n.username} commented on your post`;
+  } else if (n.type === "follow") {
+    msg = `${n.username} started following you`;
+  }
+
+  const text = document.createElement("span");
+  text.textContent = msg;
+
+  // Post Preview
+  let media;
+  if (n.image_url || n.video_url) {
+    media = document.createElement(n.video_url ? "video" : "img");
+    media.src = n.image_url || n.video_url;
+    media.className = "post-preview";
+    if (n.video_url) {
+      media.muted = true;
+      media.loop = false;
+    }
+    media.onclick = () => openPostModal(n.post_id);
+  }
+
+  div.appendChild(img);
+  div.appendChild(text);
+  if (media) div.appendChild(media);
+
+  list.appendChild(div);
+});
+
+
+};
+function closePopup() {
+  document.getElementById("notificationPopup").classList.add("hidden");
+  document.getElementById("notificationPopup").classList.remove("show");
+}
+function openMessagesPopup(currentUserId) {
+  const popup = document.getElementById("messagesPopup");
+  popup.classList.add("show");
+  popup.classList.remove("hidden");
+  console.log(currentUserId);
+  loadConversations(currentUserId);
+}
+function closeMessagesPopup() {
+  const popup = document.getElementById("messagesPopup");
+  popup.classList.add("hidden");
+  popup.classList.remove("show");
+}
+
+// Load conversations into list
+function loadConversations(userId) {
+  fetch(`http://localhost:3000/api/conversations/${userId}`)
+    .then(res => res.json())
+    .then(conversations => {
+      const list = document.getElementById("conversationsList");
+      list.innerHTML = "";
+
+      conversations.forEach(conv => {
+        const div = document.createElement("div");
+        div.className = "conversation-item";
+
+        const img = document.createElement("img");
+        img.src = conv.profile_pic || "uploads/default.png";
+
+        const info = document.createElement("div");
+        info.className = "conversation-info";
+
+        const name = document.createElement("div");
+        name.className = "username";
+        name.textContent = conv.username;
+
+        const lastMsg = document.createElement("div");
+        lastMsg.className = "last-message";
+        lastMsg.textContent = conv.last_message || "No messages yet";
+
+        // Unread style
+        if (conv.unread_count > 0) {
+          name.style.fontWeight = "bold";
+          lastMsg.style.fontWeight = "bold";
+        }
+
+        info.appendChild(name);
+        info.appendChild(lastMsg);
+        div.appendChild(img);
+        div.appendChild(info);
+
+        // Unread badge
+        if (conv.unread_count > 0) {
+          const badge = document.createElement("span");
+          badge.className = "unread-badge";
+          badge.textContent = conv.unread_count;
+          div.appendChild(badge);
+        }
+
+        div.onclick = () => {
+          openChat(conv.conversation_id, conv.user_id, conv.username, conv.profile_pic, userId);
+        };
+
+        list.appendChild(div);
+      });
+    });
+}
+
+
+
+// Search filter
+document.getElementById("searchConversation").addEventListener("input", async function () {
+  const term = this.value.toLowerCase().trim();
+  const items = document.querySelectorAll(".conversation-item");
+  const searchResults = document.getElementById("searchResult"); // container for search results
+
+  let found = false;
+  searchResults.innerHTML = ""; // reset every time
+
+  // If no term → reset convo list and hide search results
+  if (term === "") {
+    items.forEach(item => (item.style.display = "flex"));
+    return;
+  }
+
+  // Filter existing conversation list
+  items.forEach(item => {
+    const username = item.querySelector(".username").textContent.toLowerCase();
+    if (username.includes(term)) {
+      item.style.display = "flex";
+      // found = true;
+    } else {
+      item.style.display = "none";
+    }
+  });
+
+  // If no conversation matches → query DB
+    try {
+      const res = await fetch(`http://localhost:3000/search?q=${term}`);
+      const users = await res.json();
+      console.log("users: ", users);
+
+      if (users && users.length > 0) {
+        users.forEach(u => {
+          const div = document.createElement("div");
+          div.className = "search-user";
+          div.innerHTML = `
+            <img src="${u.profile_pic || 'uploads/default.png'}" class="profile-pic">
+            <span>${u.username}</span>
+          `;
+          // On click → start convo or open existing one
+          div.onclick = async () => {
+            try {
+              console.log("user.user_id, u.user_id: ", user.user_id, u.user_id);
+              const convoRes = await fetch("http://localhost:3000/api/conversation", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ user1: user.user_id, user2: u.user_id })
+              });
+              const convo = await convoRes.json();
+              console.log("convo",convo);
+              console.log("u.user_id: ", u.user_id);
+              console.log("u.username: ", u.username);
+              console.log("username: ", username);
+              openChat(convo.conversation_id, u.user_id, u.username, u.profile_pic, user.user_id);
+              searchResults.innerHTML = ""; // clear search after opening convo
+              document.getElementById("searchConversation").value = ""; // reset input
+            } catch (err) {
+              console.error("Error creating conversation:", err);
+            }
+          };
+
+          searchResults.appendChild(div);
+        });
+      } else {
+        searchResults.innerHTML = `<p class="no-result">No users found</p>`;
+      }
+    } catch (err) {
+      console.error("❌ Error searching user:", err);
+    }
+});
+
+
+// (Optional) Start new conversation if user not in list
+function startNewConversation(currentUserId, otherUsername) {
+  fetch(`http://localhost:3000/api/findUser/${otherUsername}`) // you'd need to make this API
+    .then(res => res.json())
+    .then(user => {
+      if (!user) return;
+
+      fetch("http://localhost:3000/api/conversation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user1: currentUserId, user2: user.user_id })
+      })
+      .then(res => res.json())
+      .then(data => {
+        loadConversations(currentUserId); // refresh list
+      });
+    });
+}
+
+function getStatusIcon(status) {
+  switch (status) {
+    case "sent":
+      return `<span class="tick single">✔</span>`;
+    case "seen":
+      return `<span class="tick double seen">✔✔</span>`;
+    default:
+      return "";
+  }
+}
+
+
+// Fetch messages for a conversation
+async function loadMessages(conversationId, currentUserId) {
+  try {
+    const res = await fetch(`http://localhost:3000/api/messages/${conversationId}`);
+    const messages = await res.json();
+    const chatBox = document.getElementById("chatMessages");
+    chatBox.innerHTML = "";
+
+    let hasUnreadForMe = false;
+console.log(messages);
+messages.forEach(msg => {
+  const div = document.createElement("div");
+  div.className = msg.sender_id === currentUserId ? "my-message" : "their-message";
+
+  // if message text exists
+  if (msg.message) {
+    const text = document.createElement("p");
+    text.textContent = msg.message;
+    div.appendChild(text);
+  }
+
+  // ✅ if media (post image) exists
+ if (msg.image_url) {
+          const img = document.createElement("img");
+          img.src = msg.post_image;
+          img.className = "chat-media";
+          img.alt = "Shared post image";
+          div.appendChild(img);
+        }
+
+        // 🎥 VIDEO MESSAGE
+        if (msg.video_url) {
+          const video = document.createElement("video");
+          video.src = msg.post_video;
+          video.controls = true;
+          video.className = "chat-media";
+          div.appendChild(video);
+        }
+
+
+  // status ticks
+  if (msg.sender_id === currentUserId) {
+    const statusSpan = document.createElement("span");
+    statusSpan.className = `msg-status ${msg.status}`;
+    statusSpan.innerHTML = getStatusIcon(msg.status);
+    div.appendChild(statusSpan);
+  }
+
+  chatBox.appendChild(div);
+});
+
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    // 🔥 If user has unread messages, mark as seen AND instantly update ticks live
+    if (hasUnreadForMe) {
+      const markReadRes = await fetch(`http://localhost:3000/api/markAsRead/${conversationId}/${currentUserId}`, {
+        method: "POST"
+      });
+
+      if (markReadRes.ok) {
+        // Instantly update messages visually without reloading
+        document.querySelectorAll(".my-message .msg-status").forEach(span => {
+          // only update ticks that belong to current conversation
+          span.innerHTML = getStatusIcon("seen");
+          span.className = "msg-status seen";
+        });
+      }
+    }
+  } catch (err) {
+    console.error("Error loading messages:", err);
+  }
+}
+
+
+function openChat(conversationId, selectedUserId, username = null, profilePic, currentUserId) {
+  console.log("Opening chat for:", conversationId, "with user:", selectedUserId);
+
+  const modal = document.getElementById("chatModal");
+  modal.classList.remove("hidden");
+
+  const nameEl = document.getElementById("chatUsername");
+  if (nameEl) nameEl.textContent = username || "";
+
+  const picEl = document.getElementById("chatProfilePic");
+  if (picEl) picEl.src = profilePic || "uploads/default.png";
+
+  // initial load (this will mark as seen for currentUser, if there are unread messages)
+  loadMessages(conversationId, currentUserId);
+
+  // send button — overwrite previous handler to avoid duplicates
+  const sendBtn = document.getElementById("sendMessage");
+  if (!sendBtn) return console.warn("sendMessage button not found");
+
+  // clear previous handler
+  sendBtn.onclick = null;
+
+  sendBtn.onclick = async () => {
+    // support both ids you might have used: chatText or messageInput
+    const textInput = document.getElementById("chatText") || document.getElementById("messageInput");
+    if (!textInput) return console.warn("message input not found");
+
+    const text = textInput.value.trim();
+    if (!text) return;
+
+    sendBtn.disabled = true;
+    try {
+      const resp = await fetch("http://localhost:3000/api/message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          conversationId,
+          senderId: currentUserId,
+          receiverId: selectedUserId,
+          text
+        })
+      });
+      const json = await resp.json();
+      if (json.success) {
+        textInput.value = "";
+        // reload messages to show the newly-sent message (it will display as 'sent')
+        await loadMessages(conversationId, currentUserId);
+        // NOTE: to set 'delivered' instantly, use socket.io to notify the recipient and update status
+      } else {
+        console.error("Send failed:", json);
+      }
+    } catch (err) {
+      console.error("Send error:", err);
+    } finally {
+      sendBtn.disabled = false;
+    }
+  };
+}
+
+function closeChatModal() {
+  document.getElementById("chatModal").classList.add("hidden");
+  document.getElementById("closeMessagePopup").style.display= "flex";
+}
+
+  </script>
+  <!-- Search Popup -->
+<div id="searchPopup" class="search-popup">
+  <div class="search-box">
+    <input 
+      type="text" 
+      id="searchInput" 
+      placeholder="Search"
+      oninput="filterUsers()" 
+    />
+    <div onclick="closeSearchPopup()" style="margin-left: 5px; cursor: pointer;"> X </div>
+    <button onclick="closeSearchPopup()" class="close-btn">✕</button>
+  </div>
+  <div id="searchResults" class="search-results"></div>
+</div>
+</body>
+</html>

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Profile - Postify</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      background: #fafafa;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 250px;
+      background: #fff;
+      border-right: 1px solid #ddd;
+      height: 100vh;
+      padding: 20px;
+      position: fixed;
+      left: 0;
+      top: 0;
+    }
+
+    .sidebar h2 {
+      font-size: 20px;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sidebar ul li {
+      margin: 15px 0;
+    }
+
+    .sidebar ul li a {
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .sidebar ul li a:hover {
+      color: #4285f4;
+    }
+
+    /* Main content */
+    .main {
+      margin-left: 250px;
+      flex: 1;
+      padding: 30px;
+    }
+
+    .edit-profile-container {
+      max-width: 700px;
+      margin: auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .edit-profile-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .edit-profile-header img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin-right: 20px;
+      object-fit: cover;
+    }
+
+    .edit-profile-header h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .edit-profile-form .form-group {
+      margin-bottom: 20px;
+    }
+
+    .edit-profile-form label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .edit-profile-form input,
+    .edit-profile-form textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+    }
+
+    .edit-profile-form textarea {
+      resize: none;
+      height: 80px;
+    }
+
+    .edit-profile-form button {
+      background: #4285f4;
+      color: #fff;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .edit-profile-form button:hover {
+      background: #3367d6;
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+      }
+      .main {
+        margin-left: 0;
+        padding: 15px;
+      }
+      .edit-profile-container {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>Postify</h2>
+    <ul>
+      <li><a href="home.html">Home</a></li>
+      <li><a href="profile.html">Profile</a></li>
+      <li><a href="editProfile.html">Edit Profile</a></li>
+      <li><a href="index.html">Logout</a></li>
+    </ul>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+    <div class="edit-profile-container">
+      <div class="edit-profile-header">
+        <img src="https://via.placeholder.com/80" alt="Profile Picture" id="profile-pic">
+        <h2 id="username">@PostifyUser</h2>
+      </div>
+
+      <form class="edit-profile-form" id="editProfileForm">
+        <div class="form-group">
+          <label for="full_name">Full Name</label>
+          <input type="text" id="full_name" name="full_name" placeholder="Enter your full name">
+        </div>
+
+        <div class="form-group">
+          <label for="bio">Bio</label>
+          <textarea id="bio" name="bio" placeholder="Write something about yourself..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password (Leave blank to keep unchanged)</label>
+          <input type="password" id="password" name="password" placeholder="Enter new password">
+        </div>
+
+        <div class="form-group">
+          <label for="profile_pic">Profile Picture</label>
+          <input type="file" id="profile_pic" name="profile_pic" accept="image/*">
+        </div>
+
+        <button type="submit">Save Changes</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API = "http://localhost:3000"; 
+    const form = document.getElementById("editProfileForm");
+    const profilePic = document.getElementById("profile-pic");
+    const usernameEl = document.getElementById("username");
+
+    const user = JSON.parse(localStorage.getItem("user")); // logged-in user
+    if (!user) {
+      window.location.href = "index.html";
+    }
+
+    // Load current user data into form
+    async function loadProfile() {
+      try {
+        const res = await fetch(`${API}/user/by-username/${user.username}?currentUserId=${user.user_id}`);
+        const data = await res.json();
+
+        usernameEl.innerText = "@" + data.username;
+        profilePic.src = data.profile_pic || "https://via.placeholder.com/80";
+        document.getElementById("full_name").value = data.name || "";
+        document.getElementById("bio").value = data.bio || "";
+        document.getElementById("email").value = data.email || "";
+      } catch (err) {
+        console.error("Error loading profile:", err);
+      }
+    }
+
+    loadProfile();
+
+    // Preview image before upload
+    document.getElementById("profile_pic").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        profilePic.src = URL.createObjectURL(file);
+      }
+    });
+
+    // Handle form submit
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(form);
+  formData.append("username", user.username); // ✅ send username instead of id
+
+  try {
+    const res = await fetch("http://localhost:3000/api/edit-profile", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      alert("Profile updated successfully ✅");
+
+      // update localStorage user
+      if (formData.get("full_name")) user.full_name = formData.get("full_name");
+      if (formData.get("bio")) user.bio = formData.get("bio");
+      if (formData.get("profile_pic")) user.profile_pic = "/uploads/" + formData.get("profile_pic").name;
+
+      localStorage.setItem("user", JSON.stringify(user));
+
+      window.location.href = "profile.html";
+    } else {
+      alert("Error: " + data.message);
+    }
+  } catch (err) {
+    console.error("Error updating profile:", err);
+    alert("Something went wrong.");
+  }
+});
+
+  </script>
+
+</body>
+</html>

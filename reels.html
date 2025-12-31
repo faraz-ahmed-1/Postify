@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reels</title>
+  <style>
+    body, html {
+     margin: 0;
+     padding: 0;
+     height: 100%;
+     background-color:white;
+     overflow: hidden;
+}
+
+/* Full page container for reels */
+.reels-container {
+  height: 90vh;
+  width: 25%;
+  overflow-y: scroll;              /* scroll only vertically */
+  scroll-snap-type: y mandatory;   /* snap each reel */
+  background: black;
+  margin: 30px auto;
+  scrollbar-width: none;           /* Firefox */
+  -ms-overflow-style: none;
+  border-radius: 12px;   
+}
+
+/* Each reel takes full screen */
+.reel {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;   /* center horizontally */
+  align-items: center;       /* center vertically */
+  scroll-snap-align: start;
+  background: black;
+}
+
+/* Video centered like mobile screen */
+.reel video {
+  max-height: 100vh;
+  max-width: 400px;          /* mobile-like width */
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 9/16;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+
+/* Icons */
+.reel .actions {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.reel .actions button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+/* Comment bar (over video) */
+.reel .comment-bar {
+  position: absolute;
+  bottom: 20px;
+  width: 90%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  background: rgba(0,0,0,0.5);
+  padding: 8px;
+  border-radius: 20px;
+}
+
+.reel .comment-bar input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: white;
+  outline: none;
+}
+
+/* Modal common */
+.modal {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  color: white;
+  z-index: 1000;
+}
+
+.modal-content {
+  height: 100%;
+  overflow-y: auto;
+  padding: 10px;
+  margin: 30px auto;
+}
+
+.comment-input {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.comment-input input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 20px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.2); /* slightly transparent */
+  color: #fff; /* white text to contrast with video */
+}
+
+
+.comment-input button {
+  background: #0095f6;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  margin-left: 5px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+/* Share users grid */
+.share-users {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding-bottom: 60px; /* prevent overlap */
+}
+
+.share-users .user {
+  text-align: center;
+  cursor: pointer;
+}
+
+.share-users img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}
+
+#shareBtn {
+  position: absolute;
+  bottom: 0;
+  width: 95%;
+  padding: 12px;
+  background: #0095f6;
+  color: white;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  border-radius: 10px;
+}
+
+.reel-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.reel-video {
+  height: 100vh;
+  aspect-ratio: 9 / 16;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+/* Right-side action buttons */
+.reel-actions {
+  position: absolute;
+  right: 10px;
+  top: 40%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.reel-actions button {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* Bottom profile + comment */
+.reel-bottom {
+  position: absolute;
+  bottom: 50px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;   /* ✅ spacing between user info and comment bar */
+}
+
+
+.reel-user {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  position: absolute;
+  bottom: 70px;
+  color: white;
+  font-size: 20px;
+}
+
+.reel-profile {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+}
+
+.comment-bar {
+  display: flex;
+  align-items: center;
+}
+
+.comment-bar input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: none;
+  outline: none;
+}
+.commentBtn {font-size: 20px;border: none;background: none;cursor: pointer;transition: transform 0.2s;}
+/* Comment modal container */
+.modal-content {
+  position: fixed;
+  top: 70px;         /* ✅ margin from top */
+  bottom: 5px;      /* ✅ margin from bottom */
+  left: 50%;
+  transform: translateX(-50%); /* ✅ horizontal center */
+  width: 23.5%;      /* adjust based on reel width */
+  max-width: 90%;    /* responsive on smaller screens */
+  height: auto;
+  max-height: calc(100% - 60px); /* prevents overflow */
+  background: #111;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 10000;
+}
+
+/* Comment area inside modal */
+.modal-content .comments {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+/* Comment input bar at bottom */
+.modal-content .comment-input {
+  border-top: 1px solid #333;
+  padding: 8px;
+  display: flex;
+  gap: 8px;
+}
+
+.modal-content .comment-input input {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+}
+.modal-content .comment-input button {
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  margin-right: 5px;
+}
+    .comments{display:flex;flex-direction:column;gap:10px}
+    .comment{display:flex;gap:8px;align-items:flex-start}
+    .comment img{width:34px;height:34px;border-radius:50%;object-fit:cover; border: 1px solid white;}
+    .comment-text{background:#f2f2f2;padding:8px 10px;border-radius:10px; color: black;}
+    .likeBtn {font-size: 50px;border: none;background: none;cursor: pointer;color: #444; transition: color 0.2s ease-in-out;}
+    .likeBtn.liked {font-size: 40px; color:#e33;}
+  </style>
+</head>
+<body>
+  <div class="reels-container" id="reelsContainer">
+    <!-- Reels loaded dynamically -->
+  </div>
+
+  <!-- Comment Modal -->
+  <div id="commentModal" class="modal">
+    <div class="modal-content">
+      <div class="comments" id="commentsList"></div>
+      <div class="comment-input">
+        <input type="text" id="commentText" placeholder="Add a comment...">
+        <!-- <button id="sendComment">Post</button> -->
+        <button class="commentBtn" id="commentBtn" onClick="addComment(r.id)" type="submit">Post</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share Modal -->
+  <div id="shareModal" class="modal">
+    <div class="modal-content">
+      <div class="share-users" id="shareUsers"></div>
+      <button id="shareBtn" disabled>Share</button>
+    </div>
+  </div>
+
+  <script>
+
+      // Get user from localStorage
+const user = JSON.parse(localStorage.getItem("user"));
+let currentUser = user?.username;  // ← always gives you logged-in username
+const reelsContainer = document.getElementById("reelsContainer");
+const commentModal = document.getElementById("commentModal");
+const shareModal = document.getElementById("shareModal");
+const shareBtn = document.getElementById("shareBtn");
+// reelsContainer.classList.add("reel-video");
+
+// Example reels data (replace with API fetch)
+const reels = [
+  { id: 1, video_url: "uploads/reel1.mp4", likes: 100 },
+  { id: 2, video_url: "uploads/reel2.mp4", likes: 250 }
+];
+
+// Load reels
+async function loadReels() {
+  const res = await fetch(`http://localhost:3000/api/feed?username=${currentUser}`);
+  const reels = await res.json();
+  reelsContainer.innerHTML = "";
+  reels.forEach(r => {
+    const div = document.createElement("div");
+    div.className = "reel";
+    div.innerHTML = `
+  <div class="reel-wrapper">
+    <!-- Video -->
+    <video class="reel-video" src="${r.video_url}" autoplay loop controls></video>
+
+    <!-- Right side actions -->
+    <div class="reel-actions">
+      <button onclick="likeReel(${r.id})" class="likeBtn ${r.likedByCurrentUser ? "liked" : ""}" id="likeBtn-${r.id}">${r.likedByCurrentUser ? "❤" : "♡"}</button>
+      <button onclick="openComments(${r.id})">💬</button>
+      <button onclick="openShare(${r.id})">📤</button>
+    </div>
+
+    <!-- Bottom bar (profile + comment) -->
+    <div class="reel-bottom">
+      <div class="reel-user">
+        <img class="reel-profile" src="${r.profile_pic}">
+        <p>${r.username}</p>
+      </div>
+      <div class="comment-bar">
+        <input type="text" placeholder="Add a comment...">
+      </div>
+    </div>
+  </div>
+`;
+
+    reelsContainer.appendChild(div);
+  });
+}
+
+// Like handler
+async function likeReel(postId) {
+  console.log("Sending like for post:", postId, "user:", user.user_id, currentUser);
+
+  try {
+    const res = await fetch("http://localhost:3000/api/like", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        postId,
+        userId: user.user_id,   // must exist in Users table
+        username: currentUser   // must not be null
+      })
+    });
+
+    const data = await res.json();
+    console.log("Like response:", data);
+
+    if (res.ok) {
+      const likeBtn = document.getElementById(`likeBtn-${postId}`);
+      const likesDiv = document.getElementById(`likes-${postId}`);
+      likeBtn.innerText = data.liked ? "❤" : "♡";
+      likeBtn.classList.toggle("liked", data.liked);
+      if (likesDiv) {
+        likesDiv.textContent = `${data.count} ${data.count === 1 ? "like" : "likes"}`;
+      }
+    } else {
+      console.error("Like failed:", data);
+    }
+  } catch (err) {
+    console.error("Error liking post:", err);
+  }
+}
+
+// Open comments
+async function openComments(postId) {
+  const res = await fetch(`http://localhost:3000/api/post/comments/${postId}`);
+  const comments = await res.json();
+
+  commentModal.style.display = "block";
+  const commentList = document.getElementById("commentsList");
+  commentList.innerHTML = ""; // clear previous comments
+
+  // render comments
+  comments.forEach(c => {
+    const el = document.createElement("div");
+    el.className = "comment";
+    el.innerHTML = `
+      <img src="${c.profile_pic || '/uploads/default.png'}" alt="u"
+        onclick="window.location.href='userProfile.html?username=${encodeURIComponent(c.username)}'">
+      <div>
+        <div style="font-weight:700">${c.username}</div>
+        <div class="comment-text">${escapeHtml(c.comment)}</div>
+        <div class="muted" style="font-size:12px;margin-top:4px">
+          ${new Date(c.created_at).toLocaleString()}
+        </div>
+      </div>
+    `;
+    commentList.appendChild(el);
+  });
+
+  // attach event handler only once
+  const commentBtn = document.getElementById("commentBtn");
+  commentBtn.onclick = async () => {
+    const input = document.getElementById("commentText");
+    const comment = input.value.trim();
+    if (!comment) return;
+
+    console.log("postId, user.username, comment: ", postId, user.username, comment);
+
+    await fetch(`http://localhost:3000/api/comment`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        postid: postId,                // ✅ use correct key
+        username: user.username,
+        comment
+      })
+    });
+
+    input.value = "";
+    await openComments(postId); // reload comments after posting
+  };
+}
+
+
+async function addComment(postId) {
+  const input = document.getElementById(`Comment-${postId}`);
+  const text = input.value.trim();
+  const postid = postId;
+  if (!text) return;
+  await fetch("http://localhost:3000/api/comment", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ postid, username: currentUser, comment: text })
+  });
+  input.value = "";
+}
+
+function escapeHtml(text){ if (!text) return ''; return text.replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
+
+// Open share
+async function openShare(postId) {
+  const shareModal = document.getElementById("shareModal");
+  const shareBtn = document.getElementById("shareBtn");
+  shareModal.style.display = "block";
+
+  // Fetch followers
+  const res = await fetch(`http://localhost:3000/api/users/${user.username}/followers`);
+  const users = await res.json();
+
+  const shareUsers = document.getElementById("shareUsers");
+  shareUsers.innerHTML = "";
+  let selected = new Set();
+
+  users.forEach(u => {
+    const div = document.createElement("div");
+    div.className = "user";
+    div.innerHTML = `
+      <img src="${u.profile_pic || 'uploads/default.png'}" alt="${u.username}">
+      <p>@${u.username}</p>
+    `;
+
+    // Click to select/deselect
+    div.onclick = () => {
+      if (selected.has(u.user_id)) {
+        selected.delete(u.user_id);
+        div.style.opacity = 1;
+      } else {
+        selected.add(u.user_id);
+        div.style.opacity = 0.5;
+      }
+      shareBtn.disabled = selected.size === 0;
+    };
+
+    shareUsers.appendChild(div);
+  });
+
+  // Share action
+  shareBtn.onclick = async () => {
+    const selectedUsers = Array.from(selected);
+    console.log("Sharing post", postId, "to users", selectedUsers);
+
+    // Example API call to save shares
+    await fetch(`http://localhost:3000/api/share`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        postId,
+        senderId: user.user_id,
+        receivers: selectedUsers
+      })
+    });
+
+    shareModal.style.display = "none";
+  };
+}
+
+
+// Close modal on click outside
+window.onclick = (e) => {
+  if (e.target === commentModal) commentModal.style.display = "none";
+  if (e.target === shareModal) shareModal.style.display = "none";
+};
+
+loadReels();
+
+  </script>
+</body>
+</html>

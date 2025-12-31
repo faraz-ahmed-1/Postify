@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Profile - Postify</title>
+  <link rel="shortcut icon" href="FAVICON.png" type="image/x-icon">
+  <style>
+    :root{--bg:#f8f9fa;--white:#fff;--muted:#6b6b6b}
+    body{margin:0;font-family:Inter,system-ui,Arial;background:var(--bg);color:#111}
+    .layout{display:flex;min-height:100vh}
+    .sidebar{width:240px;background:var(--white);border-right:1px solid #e6e6e6;padding:20px;box-sizing:border-box}
+    .sidebar h2{margin:0 0 20px;font-size:20px}
+    .sidebar ul{list-style:none;padding:0;margin:0}
+    .sidebar li{margin:12px 0;cursor:pointer;font-weight:600;color:#222}
+    .main{flex:1;padding:28px;box-sizing:border-box}
+
+    /* Profile header */
+    .profile-header{display:flex;gap:32px;align-items:center;margin-bottom:22px}
+    .profile-header .avatar{width:130px;height:130px;border-radius:50%;object-fit:cover;background:#ddd}
+    .profile-details h2{margin:0;font-size:22px}
+    .profile-stats{display:flex;gap:20px;margin:10px 0;color:var(--muted);font-weight:600}
+
+    /* Posts grid */
+    .posts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px; margin-top: 30px;}
+    .posts-grid .media{width:100%;height:270px;object-fit:cover;border-radius:6px;cursor:pointer;display:block}
+    .posts-grid video.media { background: #000; }
+    .likeBtn {font-size: 36px; cursor: pointer; border: none; background: none; color: #111; transition: color 0.15s ease; padding: 0; line-height: 1;}
+    .likeBtn.liked { color: #e33; } 
+    #editProfile {margin-top: 20px;padding: 8px 20px;border: none;border-radius: 6px;cursor: pointer;font-weight: 600;background: #111;color: #fff;}
+    #post-modal .close-btn {position: absolute;top: 20px;right: 20px;background: transparent;border: none;font-size: 28px;color: white;cursor: pointer;z-index: 1000;}
+    #post-modal{z-index: 1000;}
+    .menu-btn {background: transparent;border: none;font-size: 22px;cursor: pointer;rotate: 90deg;}
+    .options-modal {display: none;position: fixed;z-index: 2000;inset: 0;background: rgba(0,0,0,0.65);justify-content: center;align-items: center;}
+    .options-card {background: #fff;border-radius: 12px;width: 400px;max-width: 90%;overflow: hidden;display: flex;flex-direction: column;}
+    .options-card button {padding: 14px;border: none;border-bottom: 1px solid #eee;background: none;font-size: 15px;cursor: pointer;}
+    .options-card button:last-child {border-bottom: none;font-weight: 600;}
+    .options-card button:hover {background: #f9f9f9;}
+    .options-card .danger {color: red; font-weight: 600;}
+    .options-modal, .delete-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  justify-content: center;
+  align-items: center;
+}
+
+/* options modal lower */
+.options-modal { z-index: 3000; }
+
+/* delete modal higher */
+.delete-modal { z-index: 4000; }
+
+.options-card, .delete-card {
+  background: #fff;
+  border-radius: 12px;
+  width: 400px;
+  max-width: 90%;
+  text-align: center;
+  overflow: hidden;
+}
+
+#deletePost {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+button.danger { color: red; font-weight: bold; }
+
+.modal {
+  display: none; 
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 2000;
+  justify-content: center;
+  align-items: center;
+}
+
+.follow-modal-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  width: 40%;
+  height: 100%;
+  max-height: 500px;
+  overflow-y: auto;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.close-btn {
+  border: none;
+  background: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.search-input {
+  width: 500px;
+  padding: 8px;
+  margin-bottom: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.follow-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.follow-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+}
+
+.follow-item img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.follow-item div {
+  display: flex;
+  flex-direction: column;
+}
+
+
+    @media (max-width:900px){ .sidebar{display:none} .posts-grid .media{height:180px} .profile-header{gap:16px} }
+    /* Modal */
+    .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:9999; align-items:center; justify-content:center; padding:20px; }
+    .modal.open { display:flex; }
+    .modal-card { width:100%; max-width:1100px; height:80vh; display:flex; background:var(--white); border-radius:8px; overflow:hidden; }
+    .modal-left{flex:1; display:flex; align-items:center; justify-content:center; background:#000}
+    .modal-left img, .modal-left video{max-width:100%; max-height:100%; object-fit:contain}
+    .modal-right{width:420px; box-sizing:border-box; display:flex; flex-direction:column; border-left:1px solid #eee}
+    .post-header{display:flex; align-items:center; gap:12px;padding:12px 16px; border-bottom:1px solid #f0f0f0}
+    .post-header img{width:40px;height:40px;border-radius:50%;object-fit:cover}
+    .post-body{flex:1; overflow:auto; padding:12px 16px;}
+    .caption{margin:8px 0;color:#222}
+    .likes-row{padding:10px 16px;border-top:1px solid #f0f0f0}
+    .actions{display:flex;gap:12px;padding:10px 16px;align-items:center;border-top:1px solid #f7f7f7}
+    .comments{display:flex;flex-direction:column;gap:10px}
+    .comment{display:flex;gap:8px;align-items:flex-start}
+    .comment img{width:34px;height:34px;border-radius:50%;object-fit:cover}
+    .comment-text{background:#f2f2f2;padding:8px 10px;border-radius:10px}
+    .add-comment{display:flex;gap:8px;padding:10px 16px;border-top:1px solid #eee}
+    .add-comment input{flex:1;padding:10px;border-radius:20px;border:1px solid #ddd}
+    .add-comment button{padding:10px 14px;border-radius:20px;background:#111;color:#fff;border:none;cursor:pointer}
+    .muted{color:var(--muted);font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <h2>Postify</h2>
+      <ul>
+        <li onclick="goToFeed()">Home</li>
+        <li onclick="goToProfile()">Profile</li>
+        <li onclick="logout()">Logout</li>
+      </ul>
+    </aside>
+
+    <main class="main">
+      <section class="profile-header">
+        <img id="profilePic" class="avatar" src="/uploads/default.png" alt="avatar">
+        <div class="profile-details">
+          <h2 id="profileUsername">@username</h2>
+          <div class="profile-stats">
+            <div><span id="postCount">0</span> posts</div>
+            <div onclick="openFollowModal('followers', username)" style="cursor: pointer;"><span id="followers">0</span> followers</div>
+            <div onclick="openFollowModal('following', username)" style="cursor: pointer;"><span id="following">0</span> following</div>
+          </div>
+          <div id="fullName" class="muted">Full Name</div>
+          <div id="bio" style="margin-top:8px;color:#333">User bio</div>
+          <button id="editProfile" onclick="window.location.href='editProfile.html'">Edit Profile</button>
+        </div>
+      </section>
+      
+      <section style="margin-top: 100px;">
+        <div id="posts-container" class="posts-grid"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal -->
+  <div id="post-modal" class="modal" onclick="if(event.target===this) closeModal()">
+    <button onclick="closeModal()" class="close-btn">✕</button>
+    <div class="modal-card" role="dialog" aria-modal="true">
+      <div class="modal-left" id="modal-left">
+        <!-- media will be injected here -->
+      </div>
+
+      <div class="modal-right">
+        <div class="post-header">
+          <img id="modal-author-pic" src="/uploads/default.png" alt="author">
+          <div>
+            <div id="modal-author" style="font-weight:700">username</div>
+            <div class="muted" id="modal-created">time</div>
+          </div>
+          <div style="margin-left:auto">
+            <button class="menu-btn" onclick="openOptions()">⋯</button>
+          </div>
+        </div>
+
+        <div class="post-body">
+          <div id="comments-list" class="comments"></div>
+        </div>
+
+        <div class="likes-row">
+          <div style="margin-top:12px">
+            <div class="caption muted"><strong id="modal-author-2"></strong> <span id="modal-caption" style="font-weight:400"></span></div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <!-- single modal like button -->
+          <button id="modalLikeBtn" class="likeBtn">♡</button>
+          <div id="likeCountText">0</div>
+          <button id="focusCommentBtn">💬</button>
+          <div id="commentCountText">0</div>
+        </div>
+        <div style="margin-left:10px;" id="likedBySmall" class="muted"></div>
+
+        <div class="add-comment">
+          <input id="commentInput" placeholder="Add a comment..." />
+          <button id="commentBtn">Post</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- Options Modal -->
+<div id="options-modal" class="options-modal" onclick="if(event.target===this) closeOptions()">
+  <div class="options-card">
+    <button onclick="openDeleteModal()" class="danger">Delete</button>
+    <button>Edit</button>
+    <button>Hide like count to others</button>
+    <button>Turn off commenting</button>
+    <button>Go to post</button>
+    <button>Share to...</button>
+    <button>Copy link</button>
+    <button>Embed</button>
+    <button>About this account</button>
+    <button onclick="closeOptions()">Cancel</button>
+  </div>
+</div>
+<!-- Delete Post confirmation -->
+<div id="deleteModal" class="delete-modal">
+  <div class="delete-card">
+    <h3>Delete post?</h3>
+    <p>Are you sure you want to delete this post?</p>
+    <button class="danger" id="deletePost" onclick="deletePost(currentPostId)">Delete</button>
+    <button onclick="closeDeleteModal()" id="deletePost">Cancel</button>
+  </div>
+</div>
+
+<!-- Followers/Following Modal -->
+<div id="followModal" class="modal" onclick="if(event.target===this) closeFollowModal()">
+  <div class="follow-modal-card">
+    <div class="modal-header">
+      <h3 id="followModalTitle">Followers</h3>
+      <button class="close-btn" onclick="closeFollowModal()">✕</button>
+    </div>
+    <input
+      type="text"
+      id="searchFollowInput"
+      placeholder="Search user..."
+      oninput="filterFollowList()"
+      class="search-input"
+    />
+    <div id="followList" class="follow-list"></div>
+  </div>
+</div>
+
+<script>
+  const API = 'http://localhost:3000'; 
+const user = JSON.parse(localStorage.getItem('user') || 'null');
+if (!user) location.href = 'index.html';
+let username = null;
+  async function loadProfile() {
+  username = user.username;
+
+  // fetch profile
+  const profileRes = await fetch(`${API}/api/profile?username=${encodeURIComponent(username)}`);
+  const profile = await profileRes.json();
+
+  // update profile UI...
+  document.getElementById('profilePic').src = profile.profile_pic ? API + profile.profile_pic : '/uploads/default.png';
+  document.getElementById('profileUsername').textContent = '@' + profile.username;
+  document.getElementById('fullName').textContent = profile.full_name || '';
+  document.getElementById('bio').textContent = profile.bio || '';
+  document.getElementById('postCount').textContent = profile.postCount ?? 0;
+  document.getElementById('followers').textContent = profile.followers ?? 0;
+  document.getElementById('following').textContent = profile.following ?? 0;
+
+  // fetch posts
+  const postsRes = await fetch(`${API}/api/user-posts/${encodeURIComponent(username)}`);
+  const posts = await postsRes.json();
+  const container = document.getElementById('posts-container');
+  container.innerHTML = '';
+
+  // loop through posts
+  posts.forEach(p => {
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'relative';
+
+    let media;
+    if (p.video_url) {
+      media = document.createElement('video');
+      media.className = 'media';
+      media.src = API + (p.video_url.startsWith('/') ? p.video_url : '/' + p.video_url);
+      media.muted = true;
+      media.autoplay = false;
+      media.loop = true;
+      media.playsInline = true;
+    } else {
+      media = document.createElement('img');
+      media.className = 'media';
+      media.src = p.image_url ? (API + p.image_url) : '/uploads/default.png';
+      media.alt = p.content || '';
+    }
+
+    media.dataset.postId = p.id;
+    media.addEventListener('click', () => openPostModal(p.id));
+    wrapper.appendChild(media);
+
+    // like button overlay
+    const likeBtn = document.createElement('button');
+
+    likeBtn.addEventListener('click', async (e) => {
+      e.stopPropagation(); // don’t open modal
+      likeBtn.classList.toggle('liked');
+      likeBtn.textContent = likeBtn.classList.contains('liked') ? '♥' : '♡';
+
+      await fetch(`${API}/api/like`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId: p.id, username: user.username })
+      });
+
+      await refreshLikes(p.id, likeBtn);
+    });
+    container.appendChild(wrapper);
+
+    // initialize state
+    refreshLikes(p.id, likeBtn);
+  });
+}
+
+// don’t forget to call it!
+loadProfile();
+
+let currentPostId = null;  // global variable
+
+async function openPostModal(postId){
+   currentPostId = postId;
+  // fetch post
+  const res = await fetch(`${API}/api/post/${postId}`);
+  if (!res.ok) { alert('Failed to load post'); return; }
+  const post = await res.json();
+
+  // replace modal media
+  const modalLeft = document.getElementById('modal-left');
+  // pause any grid videos
+  document.querySelectorAll('.posts-grid video').forEach(v => { try{ v.pause(); } catch(e){} });
+
+  modalLeft.innerHTML = '';
+  let mediaEl;
+  if (post.video_url) {
+    mediaEl = document.createElement('video');
+    mediaEl.src = API + (post.video_url.startsWith('/') ? post.video_url : '/' + post.video_url);
+    mediaEl.controls = true;
+    mediaEl.autoplay = true;
+    mediaEl.loop = true;
+    mediaEl.playsInline = true;
+    mediaEl.muted = false;
+  } else {
+    mediaEl = document.createElement('img');
+    mediaEl.src = post.image_url ? (API + post.image_url) : '/uploads/default.png';
+    mediaEl.alt = 'Post';
+  }
+  mediaEl.style.width = '100%';
+  modalLeft.appendChild(mediaEl);
+
+  // fill details
+  document.getElementById('modal-author-pic').src = post.profile_pic ? (API + post.profile_pic) : '/uploads/default.png';
+  document.getElementById('modal-author').textContent = post.username;
+  document.getElementById('modal-author-2').textContent = post.username;
+  document.getElementById('modal-caption').textContent = post.content || '';
+  document.getElementById('modal-created').textContent = new Date(post.created_at).toLocaleString();
+
+  // set modalLikeBtn dataset and handlers
+  const likeBtn = document.getElementById('modalLikeBtn');
+  likeBtn.dataset.postId = postId;
+
+  // refresh likes & comments (this will set the button state)
+  await refreshLikes(postId);
+  await loadComments(postId);
+  await refreshComments(postId);
+
+  // attach click handler (replace previous)
+  likeBtn.onclick = async () => {
+    // optimistic UI toggle
+    likeBtn.classList.toggle('liked');
+    likeBtn.textContent = likeBtn.classList.contains('liked') ? '♥' : '♡';
+console.log(postId, user.username, user.user_id);
+    // send server request
+    await fetch(`${API}/api/like`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ postId, username: user.username, userId: user.user_id })
+    });
+
+    // re-sync from DB
+    await refreshLikes(postId);
+  };
+
+  // comment post
+  document.getElementById('commentBtn').onclick = async () => {
+    const input = document.getElementById('commentInput');
+    const comment = input.value.trim();
+    if (!comment) return;
+    console.log("currentPostId, user.username, comment: ", currentPostId, user.username, comment);
+    await fetch(`${API}/api/comment`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    postid: currentPostId,   // use "postId", not "currentPostId"
+    username: user.username, // make sure "user.username" exists
+    comment
+  })
+});
+
+    input.value = '';
+    await loadComments(postId);
+    await refreshComments(postId);
+  };
+
+  document.getElementById('focusCommentBtn').onclick = () => document.getElementById('commentInput').focus();
+
+  // show modal
+  document.getElementById('post-modal').classList.add('open');
+}
+
+function closeModal(){
+  // pause videos inside modal
+  document.querySelectorAll('#modal-left video').forEach(v => { try{ v.pause(); } catch(e){} });
+  document.getElementById('post-modal').classList.remove('open');
+  document.getElementById('comments-list').innerHTML = '';
+  document.getElementById('commentInput').value = '';
+  document.getElementById('likeCountText').textContent = '';
+}
+
+async function loadComments(postId){
+  try{
+    const res = await fetch(`${API}/api/post/comments/${postId}`);
+    const comments = await res.json();
+    const list = document.getElementById('comments-list');
+    list.innerHTML = '';
+    if (!Array.isArray(comments) || comments.length === 0) {
+      const placeholder = document.createElement('div');
+      placeholder.className = 'muted';
+      placeholder.style.padding = '30px';
+      placeholder.style.textAlign = 'center';
+      placeholder.textContent = 'No comments yet. Start the conversation.';
+      list.appendChild(placeholder);
+      return;
+    }
+    comments.forEach(c => {
+      const el = document.createElement('div');
+      el.className = 'comment';
+      el.innerHTML = `
+        <img src="${c.profile_pic ? API + c.profile_pic : '/uploads/default.png'}" alt="u">
+        <div>
+          <div style="font-weight:700">${c.username}</div>
+          <div class="comment-text">${escapeHtml(c.comment)}</div>
+          <div class="muted" style="font-size:12px;margin-top:4px">${new Date(c.created_at).toLocaleString()}</div>
+        </div>
+      `;
+      list.appendChild(el);
+    });
+  }catch(err){
+    console.error('Error loading comments', err);
+  }
+}
+
+async function refreshLikes(postId, btnOverride){
+  try {
+    const res = await fetch(`${API}/api/post/${postId}/likes?username=${encodeURIComponent(user.username)}`);
+    const data = await res.json();
+
+    const likeCount = data.likeCount || 0;
+    const liked = !!data.liked;
+
+    const likeBtn = btnOverride || document.getElementById('modalLikeBtn');
+    if (!likeBtn) return;
+
+    if (liked) {
+      likeBtn.classList.add('liked');
+      likeBtn.textContent = '♥';
+    } else {
+      likeBtn.classList.remove('liked');
+      likeBtn.textContent = '♡';
+    }
+
+    // update modal counters only if inside modal
+    if (!btnOverride) {
+      document.getElementById('likeCountText').textContent = `${likeCount}`;
+      const likedBySmall = document.getElementById('likedBySmall');
+      likedBySmall.textContent = data.likers?.length
+        ? `Liked by ${data.likers.slice(0,2).map(x=>x.username).join(', ')}${likeCount>2?` and ${likeCount-2} others`:''}`
+        : '';
+    }
+  } catch(err) {
+    console.error('Error refreshing likes', err);
+  }
+}
+
+
+async function refreshComments(postId){
+  try{
+    const res = await fetch(`${API}/api/post/comments/${postId}`);
+    const data = await res.json();
+    const cnt = Array.isArray(data) ? data.length : (data.commentCount || 0);
+    document.getElementById('commentCountText').textContent = `${cnt}`;
+  }catch(err){
+    console.error('Error refreshing comments', err);
+  }
+}
+
+function escapeHtml(text){ if (!text) return ''; return text.replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
+
+//option modal
+const optionsModal = document.getElementById("options-modal");
+
+function openOptions() {
+  optionsModal.style.display = "flex";
+}
+
+function closeOptions() {
+  optionsModal.style.display = "none";
+}
+
+function openOptionsModal() {
+  document.getElementById("options-modal").style.display = "flex";
+}
+function closeOptionsModal() {
+  document.getElementById("options-modal").style.display = "none";
+}
+
+function openDeleteModal() {
+  document.getElementById("deleteModal").style.display = "flex";
+  document.getElementById("options-modal").style.display = "none";
+}
+function closeDeleteModal() {
+  document.getElementById("deleteModal").style.display = "none";
+  document.getElementById("options-modal").style.display = "flex";
+}
+
+async function deletePost(postId) {
+  try {
+    console.log("Delete post ID: ", postId);
+    // call API to delete post
+    const res = await fetch(`${API}/api/post/${postId}`, {
+      method: "DELETE"
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      console.error("Delete failed:", data.message || "Unknown error");
+      alert("Failed to delete post.");
+      return;
+    }
+
+    closeDeleteModal();
+    closeOptionsModal()
+    closeModal();
+    loadProfile();
+
+    // ✅ Remove post from DOM (if it exists in feed)
+    const postEl = document.getElementById(`post-${postId}`);
+    if (postEl) {
+      postEl.remove();
+    }
+
+    console.log("Post deleted:", postId);
+
+  } catch (err) {
+    console.error("Network error while deleting post:", err);
+    alert("Something went wrong. Try again.");
+  }
+}
+//follower and following list
+
+let currentFollowList = []; // store users fetched
+
+function openFollowModal(type, username) {
+  const modal = document.getElementById("followModal");
+  const title = document.getElementById("followModalTitle");
+  const listEl = document.getElementById("followList");
+  const searchInput = document.getElementById("searchFollowInput");
+
+  title.innerText = type === "followers" ? "Followers" : "Following";
+  listEl.innerHTML = "<p>Loading...</p>";
+  modal.style.display = "flex";
+  searchInput.value = "";
+  console.log("username and type: ", username, type);
+  // Fetch followers/following from backend
+  fetch(`${API}/api/users/${username}/${type}`)
+    .then(res => res.json())
+    .then(users => {
+      currentFollowList = users;
+      renderFollowList(users);
+    })
+    .catch(err => {
+      console.error("Error fetching follow list:", err);
+      listEl.innerHTML = "<p>Error loading list</p>";
+    });
+}
+
+function closeFollowModal() {
+  document.getElementById("followModal").style.display = "none";
+}
+
+function renderFollowList(users) {
+  const listEl = document.getElementById("followList");
+  listEl.innerHTML = "";
+
+  if (!users.length) {
+    listEl.innerHTML = "<p class='muted'>No users found</p>";
+    return;
+  }
+
+  users.forEach(u => {
+    const item = document.createElement("div");
+    item.className = "follow-item";
+    item.innerHTML = `
+      <img src="${u.profile_pic || "/uploads/default.png"}" alt="${u.username}">
+      <div>
+        <strong>@${u.username}</strong>
+        <span class="muted">${u.full_name || ""}</span>
+      </div>
+    `;
+    item.onclick = async () => {
+      window.location.href= `userProfile.html?user=${encodeURIComponent(u.username)}`;
+    }
+    listEl.appendChild(item);
+  });
+}
+
+function filterFollowList() {
+  const query = document.getElementById("searchFollowInput").value.toLowerCase();
+  const filtered = currentFollowList.filter(u =>
+    u.username.toLowerCase().includes(query) ||
+    (u.full_name && u.full_name.toLowerCase().includes(query))
+  );
+  renderFollowList(filtered);
+}
+
+function goToFeed(){ window.location.href='home.html'; }
+function goToProfile(){ window.location.href='profile.html'; }
+function logout(){ localStorage.removeItem('user'); window.location.href='index.html'; }
+
+loadProfile();
+</script>
+</body>
+</html>
