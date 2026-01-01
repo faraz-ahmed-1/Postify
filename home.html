@@ -1706,7 +1706,7 @@
     }
 
     try {
-      const res = await fetch(`http://localhost:3000/api/profile?username=${username}`);
+      const res = await fetch(`https://backend-postify.onrender.com/api/profile?username=${username}`);
       const data = await res.json();
 
       if (res.ok) {
@@ -1724,7 +1724,7 @@
         const followBtn = document.getElementById("follow-btn");
         if (followBtn) {
           followBtn.onclick = async () => {
-            await fetch("http://localhost:3000/api/follow", {
+            await fetch("https://backend-postify.onrender.com/api/follow", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ follower: CURRENT_USER, following: data.username })
@@ -1744,7 +1744,7 @@
 
   loadProfile();
 
-  const API = "http://localhost:5000"; 
+  const API = "https://backend-postify.onrender.com"; 
 
   // Get user from localStorage
 const user = JSON.parse(localStorage.getItem("user"));
@@ -1773,7 +1773,7 @@ function closeSearchPopup() {
 // Fetch all users (API)
 async function loadUsers() {
   try {
-    const res = await fetch(`http://localhost:3000/search`);
+    const res = await fetch(`https://backend-postify.onrender.com/search`);
     allUsers = await res.json();
     renderUsers(allUsers);
   } catch (err) {
@@ -1816,7 +1816,7 @@ async function filterUsers() {
   }
 
   try {
-    const res = await fetch(`http://localhost:3000/search?q=${input}`);
+    const res = await fetch(`https://backend-postify.onrender.com/search?q=${input}`);
     const users = await res.json();
     console.log(users);
     if (users.length === 0) {
@@ -1844,13 +1844,13 @@ async function filterUsers() {
 async function loadFeed() {
   try {
     console.log("currentUser",currentUser);
-    const res = await fetch(`http://localhost:3000/api/feed?username=${currentUser}`);
+    const res = await fetch(`https://backend-postify.onrender.com/api/feed?username=${currentUser}`);
     const posts = await res.json(); // debug
     console.log("Feed posts:", posts);
     const feedContainer = document.getElementById("feedContainer");
     feedContainer.innerHTML = "";
 
-    const profileRes = await fetch(`http://localhost:3000/api/profile?username=${encodeURIComponent(currentUser)}`);
+    const profileRes = await fetch(`https://backend-postify.onrender.com/api/profile?username=${encodeURIComponent(currentUser)}`);
     const profile = await profileRes.json();
 
     document.getElementById("profile-pic").src = profile.profile_pic || "/uploads/default.png";
@@ -1939,7 +1939,7 @@ async function likePost(postId) {
   console.log("Sending like for post:", postId, "user:", user.user_id, currentUser);
 
   try {
-    const res = await fetch("http://localhost:3000/api/like", {
+    const res = await fetch("https://backend-postify.onrender.com/api/like", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -1972,7 +1972,7 @@ async function addComment(postId) {
   const text = input.value.trim();
   const postid = postId;
   if (!text) return;
-  await fetch("http://localhost:3000/api/comment", {
+  await fetch("https://backend-postify.onrender.com/api/comment", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ postid, username: currentUser, comment: text })
@@ -2005,7 +2005,7 @@ async function suggestion() {
   console.log("user id: ",user.user_id);
   try {
     const res = await fetch(
-      `http://localhost:3000/api/suggestion?userId=${user.user_id}&username=${user.username}`
+      `https://backend-postify.onrender.com/api/suggestion?userId=${user.user_id}&username=${user.username}`
     );
     const users = await res.json();
     console.log("users: ", users);
@@ -2038,7 +2038,7 @@ async function suggestion() {
       btn.onclick = async (e) => {
         e.stopPropagation();
         try {
-          const res = await fetch("http://localhost:3000/api/follow", {
+          const res = await fetch("https://backend-postify.onrender.com/api/follow", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -2076,7 +2076,7 @@ async function suggestion() {
 suggestion();
 async function openPostModal(postId){
    currentPostId = postId;
-  const res = await fetch(`http://localhost:3000/api/post/${postId}`);
+  const res = await fetch(`https://backend-postify.onrender.com/api/post/${postId}`);
   if (!res.ok) { alert('Failed to load post'); return; }
   const post = await res.json();
   const modalLeft = document.getElementById('modal-left');
@@ -2111,7 +2111,7 @@ async function openPostModal(postId){
   likeBtn.onclick = async () => {
     likeBtn.classList.toggle('liked');
     likeBtn.textContent = likeBtn.classList.contains('liked') ? '♥' : '♡';
-    await fetch(`http://localhost:3000/api/like`, {
+    await fetch(`https://backend-postify.onrender.com/api/like`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ postId, username: user.username })
@@ -2123,7 +2123,7 @@ async function openPostModal(postId){
     const comment = input.value.trim();
     if (!comment) return;
     console.log("currentPostId, user.username, comment: ", currentPostId, user.username, comment);
-    await fetch(`http://localhost:3000/api/comment`, {
+    await fetch(`https://backend-postify.onrender.com/api/comment`, {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
@@ -2149,7 +2149,7 @@ function closeModal(){
 async function refreshLikes(postId) {
   try {
     const res = await fetch(
-      `http://localhost:3000/api/likes/${postId}?username=${currentUser}`
+      `https://backend-postify.onrender.com/api/likes/${postId}?username=${currentUser}`
     );
     const data = await res.json();   
     document.getElementById("likeCountText").textContent = data.count;
@@ -2161,7 +2161,7 @@ async function refreshLikes(postId) {
 }
 async function loadComments(postId) {
   try {
-    const res = await fetch(`http://localhost:3000/api/post/comments/${postId}`);
+    const res = await fetch(`https://backend-postify.onrender.com/api/post/comments/${postId}`);
     const comments = await res.json();
     const container = document.getElementById("comments-list");
     container.innerHTML = "";
@@ -2206,7 +2206,7 @@ function toggleMute(videoId) {
 }
 async function refreshComments(postId) {
   try {
-    const res = await fetch(`http://localhost:3000/api/post/comments/${postId}`);
+    const res = await fetch(`https://backend-postify.onrender.com/api/post/comments/${postId}`);
     const data = await res.json();
     document.getElementById("commentCountText").textContent = data.length;
   } catch (err) {
@@ -2218,7 +2218,7 @@ let currentUserStories = [];    // Stories of currently opened user
 let currentIndex = 0;           // Index inside currentUserStories
 async function loadStories() {
   try {
-    const res = await fetch("http://localhost:3000/api/stories");
+    const res = await fetch("https://backend-postify.onrender.com/api/stories");
     storiesData = await res.json();
 
     const container = document.getElementById("stories");
@@ -2439,7 +2439,7 @@ StoryForm.addEventListener("submit", async (e) => {
   console.log("Username:", formData.get("username")); 
 
   try {
-    const res = await fetch("http://localhost:3000/api/create-story", {
+    const res = await fetch("https://backend-postify.onrender.com/api/create-story", {
       method: "POST",
       body: formData   // ✅ send FormData directly
     });
@@ -2465,7 +2465,7 @@ document.getElementById("createPostModal").addEventListener("submit", async (e) 
   if (media) formData.append("media", media);
 
   try {
-    const res = await fetch("http://localhost:3000/api/create-post", {
+    const res = await fetch("https://backend-postify.onrender.com/api/create-post", {
       method: "POST",
       body: formData
     });
@@ -2482,7 +2482,7 @@ document.getElementById("openNotifications").onclick = async () => {
   popup.classList.remove("hidden");
    popup.classList.add("show");
 
-  const res = await fetch(`http://localhost:3000/api/notifications/${user.user_id}`);
+  const res = await fetch(`https://backend-postify.onrender.com/api/notifications/${user.user_id}`);
   const notifications = await res.json();
   console.log(res);
   const list = document.getElementById("notificationList");
@@ -2553,7 +2553,7 @@ function closeMessagesPopup() {
 
 // Load conversations into list
 function loadConversations(userId) {
-  fetch(`http://localhost:3000/api/conversations/${userId}`)
+  fetch(`https://backend-postify.onrender.com/api/conversations/${userId}`)
     .then(res => res.json())
     .then(conversations => {
       const list = document.getElementById("conversationsList");
@@ -2635,7 +2635,7 @@ document.getElementById("searchConversation").addEventListener("input", async fu
 
   // If no conversation matches → query DB
     try {
-      const res = await fetch(`http://localhost:3000/search?q=${term}`);
+      const res = await fetch(`https://backend-postify.onrender.com/search?q=${term}`);
       const users = await res.json();
       console.log("users: ", users);
 
@@ -2651,7 +2651,7 @@ document.getElementById("searchConversation").addEventListener("input", async fu
           div.onclick = async () => {
             try {
               console.log("user.user_id, u.user_id: ", user.user_id, u.user_id);
-              const convoRes = await fetch("http://localhost:3000/api/conversation", {
+              const convoRes = await fetch("https://backend-postify.onrender.com/api/conversation", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ user1: user.user_id, user2: u.user_id })
@@ -2682,12 +2682,12 @@ document.getElementById("searchConversation").addEventListener("input", async fu
 
 // (Optional) Start new conversation if user not in list
 function startNewConversation(currentUserId, otherUsername) {
-  fetch(`http://localhost:3000/api/findUser/${otherUsername}`) // you'd need to make this API
+  fetch(`https://backend-postify.onrender.com/api/findUser/${otherUsername}`) // you'd need to make this API
     .then(res => res.json())
     .then(user => {
       if (!user) return;
 
-      fetch("http://localhost:3000/api/conversation", {
+      fetch("https://backend-postify.onrender.com/api/conversation", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user1: currentUserId, user2: user.user_id })
@@ -2714,7 +2714,7 @@ function getStatusIcon(status) {
 // Fetch messages for a conversation
 async function loadMessages(conversationId, currentUserId) {
   try {
-    const res = await fetch(`http://localhost:3000/api/messages/${conversationId}`);
+    const res = await fetch(`https://backend-postify.onrender.com/api/messages/${conversationId}`);
     const messages = await res.json();
     const chatBox = document.getElementById("chatMessages");
     chatBox.innerHTML = "";
@@ -2767,7 +2767,7 @@ messages.forEach(msg => {
 
     // 🔥 If user has unread messages, mark as seen AND instantly update ticks live
     if (hasUnreadForMe) {
-      const markReadRes = await fetch(`http://localhost:3000/api/markAsRead/${conversationId}/${currentUserId}`, {
+      const markReadRes = await fetch(`https://backend-postify.onrender.com/api/markAsRead/${conversationId}/${currentUserId}`, {
         method: "POST"
       });
 
@@ -2818,7 +2818,7 @@ function openChat(conversationId, selectedUserId, username = null, profilePic, c
 
     sendBtn.disabled = true;
     try {
-      const resp = await fetch("http://localhost:3000/api/message", {
+      const resp = await fetch("https://backend-postify.onrender.com/api/message", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

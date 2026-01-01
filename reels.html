@@ -345,7 +345,7 @@ const reels = [
 
 // Load reels
 async function loadReels() {
-  const res = await fetch(`http://localhost:3000/api/feed?username=${currentUser}`);
+  const res = await fetch(`https://backend-postify.onrender.com/api/feed?username=${currentUser}`);
   const reels = await res.json();
   reelsContainer.innerHTML = "";
   reels.forEach(r => {
@@ -385,7 +385,7 @@ async function likeReel(postId) {
   console.log("Sending like for post:", postId, "user:", user.user_id, currentUser);
 
   try {
-    const res = await fetch("http://localhost:3000/api/like", {
+    const res = await fetch("https://backend-postify.onrender.com/api/like", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -416,7 +416,7 @@ async function likeReel(postId) {
 
 // Open comments
 async function openComments(postId) {
-  const res = await fetch(`http://localhost:3000/api/post/comments/${postId}`);
+  const res = await fetch(`https://backend-postify.onrender.com/api/post/comments/${postId}`);
   const comments = await res.json();
 
   commentModal.style.display = "block";
@@ -450,7 +450,7 @@ async function openComments(postId) {
 
     console.log("postId, user.username, comment: ", postId, user.username, comment);
 
-    await fetch(`http://localhost:3000/api/comment`, {
+    await fetch(`https://backend-postify.onrender.com/api/comment`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -471,7 +471,7 @@ async function addComment(postId) {
   const text = input.value.trim();
   const postid = postId;
   if (!text) return;
-  await fetch("http://localhost:3000/api/comment", {
+  await fetch("https://backend-postify.onrender.com/api/comment", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ postid, username: currentUser, comment: text })
@@ -488,7 +488,7 @@ async function openShare(postId) {
   shareModal.style.display = "block";
 
   // Fetch followers
-  const res = await fetch(`http://localhost:3000/api/users/${user.username}/followers`);
+  const res = await fetch(`https://backend-postify.onrender.com/api/users/${user.username}/followers`);
   const users = await res.json();
 
   const shareUsers = document.getElementById("shareUsers");
@@ -524,7 +524,7 @@ async function openShare(postId) {
     console.log("Sharing post", postId, "to users", selectedUsers);
 
     // Example API call to save shares
-    await fetch(`http://localhost:3000/api/share`, {
+    await fetch(`https://backend-postify.onrender.com/api/share`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

@@ -186,7 +186,7 @@
   </div>
 
   <script>
-    const API = "http://localhost:3000"; 
+    const API = "https://backend-postify.onrender.com"; 
     const form = document.getElementById("editProfileForm");
     const profilePic = document.getElementById("profile-pic");
     const usernameEl = document.getElementById("username");
@@ -231,7 +231,7 @@ form.addEventListener("submit", async (e) => {
   formData.append("username", user.username); // ✅ send username instead of id
 
   try {
-    const res = await fetch("http://localhost:3000/api/edit-profile", {
+    const res = await fetch("https://backend-postify.onrender.com/api/edit-profile", {
       method: "POST",
       body: formData
     });

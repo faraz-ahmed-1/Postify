@@ -122,7 +122,7 @@
   </div>
 
 <script>
-  const API = "http://localhost:3000/api";
+  const API = "https://backend-postify.onrender.com/api";
   const params = new URLSearchParams(window.location.search);
   const username = params.get("user"); // profile being viewed
   // const currentUser = localStorage.getItem("username"); // logged-in user (store at login)
@@ -283,8 +283,6 @@ async function openPostModal(post) {
   document.getElementById("modalCaptionAuthor").innerText = "@" + post.username;
   document.getElementById("modalCaption").innerText = post.content || "";
 
-  // ... rest of code ...
-
   // 👉 Load likes
   try {
     const resLikes = await fetch(`${API}/post/${post.id}/likes?username=${currentUser.username}`);
@@ -407,7 +405,7 @@ function closePostModal() {
 // Like/Unlike a post
 async function handleLike(postId, username) {
   try {
-    const res = await fetch("/api/like", {
+    const res = await fetch(`${API}/api/like`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ 
@@ -429,7 +427,7 @@ async function handleLike(postId, username) {
 // Refresh likes
 async function loadLikes(postId, username) {
   try {
-    const res = await fetch(`/api/post/${postId}/likes?username=${username}`);
+    const res = await fetch(`${API}/api/post/${postId}/likes?username=${username}`);
     const data = await res.json();
 
     // update like count
@@ -451,7 +449,7 @@ async function handleComment(postId) {
   if (!text) return alert("Enter a comment!");
 
   try {
-    const res = await fetch("${API}/comment", {
+    const res = await fetch(`${API}/comment`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -475,7 +473,7 @@ async function handleComment(postId) {
 // Load comments
 async function loadComments(postId) {
   try {
-    const res = await fetch(`/api/post/comments/${postId}`);
+    const res = await fetch(`${API}/api/post/comments/${postId}`);
     const comments = await res.json();
 
     const container = document.querySelector(`#comments-${postId}`);
