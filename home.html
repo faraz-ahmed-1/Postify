@@ -1709,15 +1709,18 @@
       const res = await fetch(`https://backend-postify.onrender.com/api/profile?username=${encodeURIComponent(username)}`);
       const data = await res.json();
 
+      const profilePicUrl = data.profile_pic
+       ? `${API}${data.profile_pic}`
+       : "default.png";
       if (res.ok) {
         document.getElementById("username").innerText = "@" + data.username;
-        document.getElementById("profile-pic").src = data.profile_pic || "default.png";
+        document.getElementById("profile-pic").src = profilePicUrl || "default.png";
         document.getElementById("full_name").innerText = data.full_name || "";
         document.getElementById("bio").innerText = data.bio || "";
         document.getElementById("followers-count").innerText = data.followers;
         document.getElementById("following-count").innerText = data.following;
         document.getElementById("posts-count").innerText = data.postCount;
-        document.getElementById("user-story").src = data.profile_pic || "default.png";
+        document.getElementById("user-story").src = profilePicUrl || "default.png";
         document.getElementById("user-username").innerText = data.username;
 
         // handle follow/unfollow button if logged in user !== profile owner
