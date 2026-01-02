@@ -1706,7 +1706,7 @@
     }
 
     try {
-      const res = await fetch(`https://backend-postify.onrender.com/api/profile?username=${username}`);
+      const res = await fetch(`https://backend-postify.onrender.com/api/profile?username=${encodeURIComponent(username)}`);
       const data = await res.json();
 
       if (res.ok) {
