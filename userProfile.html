@@ -125,9 +125,11 @@
   const API = "https://backend-postify.onrender.com/api";
   const params = new URLSearchParams(window.location.search);
   const username = params.get("user"); // profile being viewed
-  const currentUser = localStorage.getItem("username"); // logged-in user (store at login)
-  // const currentUser = JSON.parse(localStorage.getItem("user"));
-
+const currentUser = JSON.parse(localStorage.getItem("user"));
+if (!currentUser || !currentUser.user_id) {
+  alert("Please login again");
+  window.location.href = "index.html";
+}
 
 const usernameEl = document.getElementById("profileUsername"); // correct ID
 const fullNameEl = document.getElementById("fullName");
@@ -139,7 +141,8 @@ let profileUserId = null;
   async function loadProfile() {
     try {
       // const res = await fetch(`${API}/profile?username=${username}&currentUser=${currentUser}`);
-      const res = await fetch(`${API}/profile?username=${username}&currentUserId=${currentUser.id}`);
+      const res = await fetch(`${API}/profile?username=${username}&currentUserId=${currentUser.user_id}`);
+
       const data = await res.json();
 
       if (!res.ok) throw new Error(data.error);
@@ -151,23 +154,26 @@ let profileUserId = null;
       fullNameEl.innerText = data.full_name;
       bioEl.innerText = data.bio || "";
       profilePicEl.src = data.profile_pic || "default.png";
-
+      profileUserId = data.user_id;
       // set follow/unfollow button
-      if (username !== currentUser) {
-        followBtn.style.display = "block";
-        followBtn.innerText = data.isFollowed ? "Following" : "Follow";
-        followBtn.onclick = () => toggleFollow(
-  currentUser.user_id,   // follower
-  profileUserId,         // following
-  followBtn,             // button element
-  document.getElementById("followers") // count element
-);
+if (username !== currentUser.username) {
+  followBtn.style.display = "block";
+  followBtn.innerText = data.isFollowed ? "Following" : "Follow";
+
+  followBtn.onclick = () =>
+    toggleFollow(
+      currentUser.user_id,   // follower
+      profileUserId,         // following
+      followBtn,
+      document.getElementById("followers")
+    );
+}
+
 
       } else {
         followBtn.style.display = "none"; // hide button on own profile
       }
-
-      profileUserId = data.user_id;   // save backend’s user_id for follow/unfollow
+   // save backend’s user_id for follow/unfollow
           // after profile info is set:
     loadPosts(username);
 
