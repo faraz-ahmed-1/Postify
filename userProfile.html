@@ -125,8 +125,8 @@
   const API = "https://backend-postify.onrender.com/api";
   const params = new URLSearchParams(window.location.search);
   const username = params.get("user"); // profile being viewed
-  // const currentUser = localStorage.getItem("username"); // logged-in user (store at login)
-  const currentUser = JSON.parse(localStorage.getItem("user"));
+  const currentUser = localStorage.getItem("username"); // logged-in user (store at login)
+  // const currentUser = JSON.parse(localStorage.getItem("user"));
 
 
 const usernameEl = document.getElementById("profileUsername"); // correct ID
