@@ -2005,13 +2005,13 @@ async function toggleFollow(followerId, followingId, buttonEl) {
 loadFeed();
 async function suggestion() {
   const container = document.getElementById("suggestions");
-  console.log("user id: ",user.user_id);
+  console.log("user Id: ",user.id);
+  // let currentUser = user?.username;
   try {
     const res = await fetch(
-      `https://backend-postify.onrender.com/api/suggestion?userId=${user.user_id}&username=${user.username}`
+      `https://backend-postify.onrender.com/api/suggestion?userId=${user.id}&username=${user.username}`
     );
     const users = await res.json();
-    console.log("users: ", users);
 
     container.innerHTML = "<h3>Suggestions for you</h3>";
 
@@ -2045,7 +2045,7 @@ async function suggestion() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              follower_id: user.user_id,
+              follower_id: user.id,
               following_id: u.user_id
             }),
           });

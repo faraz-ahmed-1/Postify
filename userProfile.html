@@ -157,11 +157,11 @@ let profileUserId = null;
         followBtn.style.display = "block";
         followBtn.innerText = data.isFollowed ? "Following" : "Follow";
         followBtn.onclick = () => toggleFollow(
-  currentUser.user_id,   // follower
-  profileUserId,         // following
-  followBtn,             // button element
-  document.getElementById("followers") // count element
-);
+          currentUser.user_id,   // follower
+          profileUserId,         // following
+          followBtn,             // button element
+          document.getElementById("followers") // count element
+        );
 
       } else {
         followBtn.style.display = "none"; // hide button on own profile
