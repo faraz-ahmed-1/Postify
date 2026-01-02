@@ -157,7 +157,7 @@ let profileUserId = null;
         followBtn.style.display = "block";
         followBtn.innerText = data.isFollowed ? "Following" : "Follow";
         followBtn.onclick = () => toggleFollow(
-          currentUser.user_id,   // follower
+          currentUser.id,   // follower
           profileUserId,         // following
           followBtn,             // button element
           document.getElementById("followers") // count element
