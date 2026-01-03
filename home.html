@@ -1884,6 +1884,7 @@ async function addComment(postId) {
   const input = document.getElementById(`comment-${postId}`);
   const text = input.value.trim();
   const postid = postId;
+  console.log("currentUser:  ", currentUser);
   if (!text) return;
   await fetch("https://backend-postify.onrender.com/api/comment", {
     method: "POST",
