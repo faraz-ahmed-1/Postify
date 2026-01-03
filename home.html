@@ -2657,7 +2657,7 @@ document.getElementById("searchConversation").addEventListener("input", async fu
               const convoRes = await fetch("https://backend-postify.onrender.com/api/conversation", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ user1: user.user_id, user2: u.user_id })
+                body: JSON.stringify({ user1: user.id, user2: u.user_id })
               });
               const convo = await convoRes.json();
               console.log("convo",convo);
