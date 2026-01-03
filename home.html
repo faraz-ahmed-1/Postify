@@ -895,8 +895,15 @@
     height: 90%;
     z-index: 1000;
   }
-  .chat-modal{
+.chat-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
+    height: 100vh;
+    margin-left: 0;
+    z-index: 1000;
+    background: #fff;
   }
 }
 
@@ -2563,10 +2570,6 @@ document.getElementById("searchConversation").addEventListener("input", async fu
                 body: JSON.stringify({ user1: user.id, user2: u.user_id })
               });
               const convo = await convoRes.json();
-              console.log("convo",convo);
-              console.log("u.user_id: ", u.user_id);
-              console.log("u.username: ", u.username);
-              console.log("username: ", username);
               openChat(convo.id, u.user_id, u.username, u.profile_pic, user.id);
               searchResults.innerHTML = ""; // clear search after opening convo
               document.getElementById("searchConversation").value = ""; // reset input
