@@ -1849,7 +1849,7 @@ async function loadFeed() {
   }
 }
 async function likePost(postId) {
-  console.log("Sending like for post:", postId, "user:", user.user_id, currentUser);
+  console.log("Sending like for post:", postId, "user:", user.id, currentUser);
 
   try {
     const res = await fetch("https://backend-postify.onrender.com/api/like", {
