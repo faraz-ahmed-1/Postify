@@ -1884,12 +1884,12 @@ async function addComment(postId) {
   const input = document.getElementById(`comment-${postId}`);
   const text = input.value.trim();
   const postid = postId;
-  console.log("currentUser:  ", currentUser);
+  console.log("currentUser:  ", user.username);
   if (!text) return;
   await fetch("https://backend-postify.onrender.com/api/comment", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ postid, username: currentUser, comment: text })
+    body: JSON.stringify({ postid, username: user.username, comment: text })
   });
   input.value = "";
 }
