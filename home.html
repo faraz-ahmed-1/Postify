@@ -2567,7 +2567,7 @@ document.getElementById("searchConversation").addEventListener("input", async fu
               console.log("u.user_id: ", u.user_id);
               console.log("u.username: ", u.username);
               console.log("username: ", username);
-              openChat(convo.conversation_id, u.user_id, u.username, u.profile_pic, user.id);
+              openChat(convo.id, u.user_id, u.username, u.profile_pic, user.id);
               searchResults.innerHTML = ""; // clear search after opening convo
               document.getElementById("searchConversation").value = ""; // reset input
             } catch (err) {
