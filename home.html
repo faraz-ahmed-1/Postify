@@ -2395,7 +2395,7 @@ document.getElementById("openNotifications").onclick = async () => {
   popup.classList.remove("hidden");
    popup.classList.add("show");
 
-  const res = await fetch(`https://backend-postify.onrender.com/api/notifications/${user.user_id}`);
+  const res = await fetch(`https://backend-postify.onrender.com/api/notifications/${user.id}`);
   const notifications = await res.json();
   console.log(res);
   const list = document.getElementById("notificationList");
