@@ -2545,7 +2545,7 @@ function openMessagesPopup(currentUserId) {
   const popup = document.getElementById("messagesPopup");
   popup.classList.add("show");
   popup.classList.remove("hidden");
-  console.log(currentUserId);
+  console.log(user.id);
   loadConversations(currentUserId);
 }
 function closeMessagesPopup() {
@@ -2653,7 +2653,7 @@ document.getElementById("searchConversation").addEventListener("input", async fu
           // On click → start convo or open existing one
           div.onclick = async () => {
             try {
-              console.log("user.user_id, u.user_id: ", user.user_id, u.user_id);
+              console.log("user.user_id, u.user_id: ", user.id, u.user_id);
               const convoRes = await fetch("https://backend-postify.onrender.com/api/conversation", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -2790,7 +2790,7 @@ messages.forEach(msg => {
 
 
 function openChat(conversationId, selectedUserId, username = null, profilePic, currentUserId) {
-  console.log("Opening chat for:", conversationId, "with user:", selectedUserId);
+  console.log("Opening chat for:", user.id, "with user:", selectedUserId);
 
   const modal = document.getElementById("chatModal");
   modal.classList.remove("hidden");
