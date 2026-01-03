@@ -1857,7 +1857,7 @@ async function likePost(postId) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         postId,
-        userId: user.user_id,   // must exist in Users table
+        userId: user.id,   // must exist in Users table
         username: currentUser   // must not be null
       })
     });
