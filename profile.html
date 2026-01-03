@@ -305,7 +305,7 @@ let username = null;
   const profile = await profileRes.json();
 
   // update profile UI...
-  document.getElementById('profilePic').src = profile.profile_pic ? API + profile.profile_pic : '/uploads/default.png';
+  document.getElementById('profilePic').src = profile.profile_pic || '/uploads/default.png';
   document.getElementById('profileUsername').textContent = '@' + profile.username;
   document.getElementById('fullName').textContent = profile.full_name || '';
   document.getElementById('bio').textContent = profile.bio || '';
