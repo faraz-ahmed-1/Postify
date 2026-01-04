@@ -305,7 +305,7 @@ let username = null;
   const profile = await profileRes.json();
 
   // update profile UI...
-  document.getElementById('profilePic').src = profile.profile_pic || '/uploads/default.png';
+  document.getElementById('profilePic').src = profile.profile_pic;
   document.getElementById('profileUsername').textContent = '@' + profile.username;
   document.getElementById('fullName').textContent = profile.full_name || '';
   document.getElementById('bio').textContent = profile.bio || '';
@@ -328,7 +328,7 @@ let username = null;
     if (p.video_url) {
       media = document.createElement('video');
       media.className = 'media';
-      media.src = API + (p.video_url.startsWith('/') ? p.video_url : '/' + p.video_url);
+      media.src = p.video_url;
       media.muted = true;
       media.autoplay = false;
       media.loop = true;
@@ -336,7 +336,7 @@ let username = null;
     } else {
       media = document.createElement('img');
       media.className = 'media';
-      media.src = p.image_url ? (API + p.image_url) : '/uploads/default.png';
+      media.src = p.image_url;
       media.alt = p.content || '';
     }
 
