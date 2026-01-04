@@ -388,7 +388,7 @@ async function openPostModal(postId){
   let mediaEl;
   if (post.video_url) {
     mediaEl = document.createElement('video');
-    mediaEl.src = API + (post.video_url.startsWith('/') ? post.video_url : '/' + post.video_url);
+    mediaEl.src = post.video_url;
     mediaEl.controls = true;
     mediaEl.autoplay = true;
     mediaEl.loop = true;
@@ -396,14 +396,14 @@ async function openPostModal(postId){
     mediaEl.muted = false;
   } else {
     mediaEl = document.createElement('img');
-    mediaEl.src = post.image_url ? (API + post.image_url) : '/uploads/default.png';
+    mediaEl.src = post.image_url;
     mediaEl.alt = 'Post';
   }
   mediaEl.style.width = '100%';
   modalLeft.appendChild(mediaEl);
 
   // fill details
-  document.getElementById('modal-author-pic').src = post.profile_pic ? (API + post.profile_pic) : '/uploads/default.png';
+  document.getElementById('modal-author-pic').src = post.profile_pic || '/uploads/default.png';
   document.getElementById('modal-author').textContent = post.username;
   document.getElementById('modal-author-2').textContent = post.username;
   document.getElementById('modal-caption').textContent = post.content || '';
