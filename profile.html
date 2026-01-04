@@ -403,7 +403,7 @@ async function openPostModal(postId){
   modalLeft.appendChild(mediaEl);
 
   // fill details
-  document.getElementById('modal-author-pic').src = post.profile_pic || '/uploads/default.png';
+  document.getElementById('modal-author-pic').src = post.profile_pic;
   document.getElementById('modal-author').textContent = post.username;
   document.getElementById('modal-author-2').textContent = post.username;
   document.getElementById('modal-caption').textContent = post.content || '';
@@ -490,7 +490,7 @@ async function loadComments(postId){
       const el = document.createElement('div');
       el.className = 'comment';
       el.innerHTML = `
-        <img src="${c.profile_pic ? API + c.profile_pic : '/uploads/default.png'}" alt="u">
+        <img src="${c.profile_pic}" alt="u">
         <div>
           <div style="font-weight:700">${c.username}</div>
           <div class="comment-text">${escapeHtml(c.comment)}</div>
